@@ -193,8 +193,8 @@
     <value>Оценка приёмов наших врачей
 по мнению пациентов</value>
   </data>
-  <data name="FormRecommendationLabel" xml:space="preserve">
-    <value>За последние семь дней
+  <data name="FormRecommendationLabelToday" xml:space="preserve">
+    <value>Сегодня
 проголосовало пациентов:</value>
   </data>
   <data name="FormRecommendationTitle" xml:space="preserve">
@@ -204,5 +204,9 @@
   <data name="FormDoctorsMarksLabelYesterday" xml:space="preserve">
     <value>Вчера поставлено
 оценок:</value>
+  </data>
+  <data name="FormRecommendationLabelYesterday" xml:space="preserve">
+    <value>Вчера
+проголосовало пациентов:</value>
   </data>
 </root>

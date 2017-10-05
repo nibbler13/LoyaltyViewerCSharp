@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace LoyaltyViewer {
 	public partial class FormInfo : FormTemplate {
-		Prolan prolan;
+		DataService prolan;
 
 		public FormInfo() {
 			InitializeComponent();
@@ -14,10 +14,6 @@ namespace LoyaltyViewer {
 			//Do not change the order of functions call
 			SetupLabels();
 			SetupPictureBoxes();
-
-			LoggingSystem.LogMessageToFile("Используются следующие параметры:");
-			LoggingSystem.LogMessageToFile(Properties.Settings.Default.prolanDeptNameQuality.ToString());
-			LoggingSystem.LogMessageToFile(Properties.Settings.Default.prolanDeptNameRecommendation.ToString());
 
 			Thread thread = new Thread(BeginCycleChange);
 			thread.Start();
@@ -95,10 +91,10 @@ namespace LoyaltyViewer {
 				Thread.Sleep(Properties.Settings.Default.formChangePeriodInSeconds * 1000);
 
 				if (prolan == null)
-					prolan = new Prolan();
+					prolan = new DataService();
 
 				this.Invoke((MethodInvoker)delegate () {
-					ProlanResult prolanResult = prolan.GetRecommendationResult();
+					DataResult prolanResult = prolan.GetRecommendationResult();
 					if (prolanResult.total > 0) {
 						Form formRecommendation = new FormRecommendation(prolanResult);
 						formRecommendation.Show();
@@ -110,7 +106,7 @@ namespace LoyaltyViewer {
 				Thread.Sleep((Properties.Settings.Default.formChangePeriodInSeconds - 1) * 1000);
 
 				this.Invoke((MethodInvoker)delegate () {
-					ProlanResult prolanResult = prolan.GetQualityResult();
+					DataResult prolanResult = prolan.GetQualityResult();
 					if (prolanResult.total > 0) {
 						Form formDoctorsMarks = new FormQuality(prolanResult);
 						formDoctorsMarks.Show();

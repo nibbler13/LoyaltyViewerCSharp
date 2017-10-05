@@ -1,5 +1,6 @@
 ﻿using System.Net.Mail;
 using System;
+using System.Reflection;
 
 namespace LoyaltyViewer {
 	class MailSystem {
@@ -7,9 +8,9 @@ namespace LoyaltyViewer {
 			LoggingSystem.LogMessageToFile("Отправка e-mail с текстом: " + body);
 
 			string toAddress = Properties.Settings.Default.formDebug ?
-							   "nn-admin@bzklinika.ru" : Properties.Settings.Default.mailTo;
+							   Properties.Settings.Default.mailCopy : Properties.Settings.Default.mailTo;
 			string copy = Properties.Settings.Default.mailCopy;
-			string subject = "Уведомление";
+			string subject = "Уведомление от " + Assembly.GetExecutingAssembly().GetName().Name;
 			string server = Properties.Settings.Default.mailServer;
 			string user = Properties.Settings.Default.mailUser;
 			string password = Properties.Settings.Default.mailPassword;
@@ -20,7 +21,7 @@ namespace LoyaltyViewer {
 							"Имя системы: " + Environment.MachineName;
 
 			try {
-				MailAddress from = new MailAddress(user + "@" + domain, "LoyaltyViewer");
+				MailAddress from = new MailAddress(user + "@" + domain, Assembly.GetExecutingAssembly().GetName().Name);
 				MailAddress to = new MailAddress(toAddress);
 				
 				using (MailMessage message = new MailMessage(from, to)) {

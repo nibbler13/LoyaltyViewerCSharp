@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace LoyaltyViewer {
 	public partial class FormQuality : FormTemplate {
-		public FormQuality(ProlanResult prolanResult) {
+		public FormQuality(DataResult prolanResult) {
 			InitializeComponent();
 
 			LoggingSystem.LogMessageToFile("ФормаОценкаКачества.Отображение");

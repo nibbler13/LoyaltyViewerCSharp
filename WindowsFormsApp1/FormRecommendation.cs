@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace LoyaltyViewer {
 	public partial class FormRecommendation : FormTemplate {
-		public FormRecommendation(ProlanResult prolanResult) {
+		public FormRecommendation(DataResult prolanResult) {
 			InitializeComponent();
 
 			LoggingSystem.LogMessageToFile("ФормаРекомендации.Отображение");

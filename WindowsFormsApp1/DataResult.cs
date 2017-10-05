@@ -1,7 +1,5 @@
 ﻿namespace LoyaltyViewer {
-	public class ProlanResult {
-		public enum Types {Quality, Recommendation};
-
+	public class DataResult {
 		public int total = 0;
 		public int percentLove = 0;
 		public int percentHappy = 0;
@@ -14,7 +12,7 @@
 
 		public string title = "";
 
-		public ProlanResult() {
+		public DataResult() {
 
 		}
 	}
