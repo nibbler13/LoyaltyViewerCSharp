@@ -71,30 +71,31 @@ namespace LoyaltyViewer {
 		private void GetQualityData(Types type) {
 			string query;
 			string title;
-			DataResult dataResult;
+			DataResult dataResult = new DataResult();
 			int votesCount;
 			int voteShift;
 			string columnName;
 
-			if (type == Types.QualityToday) {
-				query = Properties.Settings.Default.MisDbSelectQueryDocrateToday;
-				dataResult = qualityResultToday;
-				title = Properties.Resources.FormDoctorsMarksLabelToday;
-			} else if (type == Types.QualityYesterday) {
-				query = Properties.Settings.Default.MisDbSelectQueryDocrateYesterday;
-				dataResult = qualityResultYesterday;
-				title = Properties.Resources.FormDoctorsMarksLabelYesterday;
-			} else if (type == Types.RecommendationToday) {
-				query = Properties.Settings.Default.MisDbSelectQueryClRecommendToday;
-				dataResult = recommendationToday;
-				title = Properties.Resources.FormRecommendationLabelToday;
-			} else if (type == Types.RecommendationYesterday) {
-				query = Properties.Settings.Default.MisDbSelectQueryClRecommendYesterday;
-				dataResult = recommendationYesterday;
-				title = Properties.Resources.FormRecommendationLabelYesterday;
-			} else {
-				LoggingSystem.LogMessageToFile("GetQualityData неверный тип данных");
-				return;
+			switch (type) {
+				case Types.QualityToday:
+					query = Properties.Settings.Default.MisDbSelectQueryDocrateToday;
+					title = Properties.Resources.FormDoctorsMarksLabelToday;
+					break;
+				case Types.QualityYesterday:
+					query = Properties.Settings.Default.MisDbSelectQueryDocrateYesterday;
+					title = Properties.Resources.FormDoctorsMarksLabelYesterday;
+					break;
+				case Types.RecommendationToday:
+					query = Properties.Settings.Default.MisDbSelectQueryClRecommendToday;
+					title = Properties.Resources.FormRecommendationLabelToday;
+					break;
+				case Types.RecommendationYesterday:
+					query = Properties.Settings.Default.MisDbSelectQueryClRecommendYesterday;
+					title = Properties.Resources.FormRecommendationLabelYesterday;
+					break;
+				default:
+					LoggingSystem.LogMessageToFile("GetQualityData неверный тип данных");
+					return;
 			}
 
 			if (type == Types.RecommendationToday ||
@@ -109,40 +110,56 @@ namespace LoyaltyViewer {
 			}
 
 			DataTable dataTable = fBClient.GetDataTable(query, new Dictionary<string, string>(), ref errorsCountMisDb);
-
-			int totalVotes = dataTable.Rows.Count;
-			if (totalVotes == 0)
-				return;
+			int totalVotes = 0;
 
 			int[] votes = new int[votesCount];
 			foreach (DataRow row in dataTable.Rows) {
 				try {
 					int vote = int.Parse(row[columnName].ToString());
 					votes[vote - voteShift]++;
+					totalVotes++;
 				} catch (Exception) {
 					continue;
 				}
 			}
 
-			if (type == Types.QualityToday ||
-				type == Types.QualityYesterday) {
-				dataResult.percentAngry = (int)((double)votes[0] / (double)totalVotes * 100.0);
-				dataResult.percentSad = (int)((double)votes[1] / (double)totalVotes * 100.0);
-				dataResult.percentNeutral = (int)((double)votes[2] / (double)totalVotes * 100.0);
-				dataResult.percentHappy = (int)((double)votes[3] / (double)totalVotes * 100.0);
-				dataResult.percentLove = 100 - dataResult.percentAngry - dataResult.percentSad -
-					dataResult.percentNeutral - dataResult.percentHappy;
-			} else if (
-				type == Types.RecommendationToday ||
-				type == Types.RecommendationYesterday) {
-				dataResult.percentDislike = (int)((double)(votes[0] + votes[1] + votes[2] + votes[3] + votes[4] + votes[5] + votes[6]) / 
-					(double)totalVotes * 100.0);
-				dataResult.percentDontKnow = (int)((double)(votes[7] + votes[8]) / totalVotes * 100.0);
-				dataResult.percentLike = 100 - dataResult.percentDislike - dataResult.percentDontKnow;
-			}
+			if (totalVotes > 0)
+				if (type == Types.QualityToday ||
+					type == Types.QualityYesterday) {
+					dataResult.percentAngry = (int)((double)votes[0] / (double)totalVotes * 100.0);
+					dataResult.percentSad = (int)((double)votes[1] / (double)totalVotes * 100.0);
+					dataResult.percentNeutral = (int)((double)votes[2] / (double)totalVotes * 100.0);
+					dataResult.percentHappy = (int)((double)votes[3] / (double)totalVotes * 100.0);
+					dataResult.percentLove = 100 - dataResult.percentAngry - dataResult.percentSad -
+						dataResult.percentNeutral - dataResult.percentHappy;
+				} else if (
+					type == Types.RecommendationToday ||
+					type == Types.RecommendationYesterday) {
+					dataResult.percentDislike = (int)((double)(votes[0] + votes[1] + votes[2] + votes[3] + votes[4] + votes[5] + votes[6]) / 
+						(double)totalVotes * 100.0);
+					dataResult.percentDontKnow = (int)((double)(votes[7] + votes[8]) / totalVotes * 100.0);
+					dataResult.percentLike = 100 - dataResult.percentDislike - dataResult.percentDontKnow;
+				}
 			
 			dataResult.total = totalVotes;
 			dataResult.title = title;
+
+			switch (type) {
+				case Types.QualityToday:
+					qualityResultToday = dataResult;
+					break;
+				case Types.QualityYesterday:
+					qualityResultYesterday = dataResult;
+					break;
+				case Types.RecommendationToday:
+					recommendationToday = dataResult;
+					break;
+				case Types.RecommendationYesterday:
+					recommendationYesterday = dataResult;
+					break;
+				default:
+					break;
+			}
 		}
 
 		public DataResult GetQualityResult() {
