@@ -171,5 +171,8 @@
   <ItemGroup>
     <None Include="Resources\icon_dislike_white.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\new-year-stars.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

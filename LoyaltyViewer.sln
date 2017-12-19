@@ -1,11 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoyaltyViewer", "WindowsFormsApp1\LoyaltyViewer.csproj", "{56F2E5AB-05EA-437A-B947-A7158D573540}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoyaltyViewerWinforms", "WindowsFormsApp1\LoyaltyViewerWinforms.csproj", "{56F2E5AB-05EA-437A-B947-A7158D573540}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoyaltyViewerWpf", "LoyaltyViewerWpf\LoyaltyViewerWpf.csproj", "{C66F2562-9143-4EDE-B0E0-9AB1A7996AFE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0E5639FB-CCE4-4635-BA1A-7320975BB256}"
+	ProjectSection(SolutionItems) = preProject
+		Performance1.psess = Performance1.psess
+	EndProjectSection
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -15,8 +25,18 @@ Global
 		{56F2E5AB-05EA-437A-B947-A7158D573540}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56F2E5AB-05EA-437A-B947-A7158D573540}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56F2E5AB-05EA-437A-B947-A7158D573540}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C66F2562-9143-4EDE-B0E0-9AB1A7996AFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C66F2562-9143-4EDE-B0E0-9AB1A7996AFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C66F2562-9143-4EDE-B0E0-9AB1A7996AFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C66F2562-9143-4EDE-B0E0-9AB1A7996AFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8BB36F26-48D5-46CE-9EB5-B27BEABAAC34}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

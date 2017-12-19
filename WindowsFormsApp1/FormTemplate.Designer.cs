@@ -35,6 +35,8 @@
 			// 
 			// pictureBoxLogo
 			// 
+			this.pictureBoxLogo.BackColor = System.Drawing.Color.Transparent;
+			this.pictureBoxLogo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.pictureBoxLogo.Image = global::LoyaltyViewer.Properties.Resources.butterfly_clear;
 			this.pictureBoxLogo.Location = new System.Drawing.Point(661, -1);
 			this.pictureBoxLogo.Name = "pictureBoxLogo";
@@ -66,6 +68,7 @@
 			// labelTitle
 			// 
 			this.labelTitle.AutoSize = true;
+			this.labelTitle.BackColor = System.Drawing.Color.Transparent;
 			this.labelTitle.Location = new System.Drawing.Point(-1, -1);
 			this.labelTitle.Name = "labelTitle";
 			this.labelTitle.Size = new System.Drawing.Size(173, 26);
@@ -77,7 +80,8 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.Window;
-			this.ClientSize = new System.Drawing.Size(800, 600);
+			this.BackgroundImage = global::LoyaltyViewer.Properties.Resources.new_year_stars;
+			this.ClientSize = new System.Drawing.Size(1920, 1080);
 			this.Controls.Add(this.labelTitle);
 			this.Controls.Add(this.pictureBoxBottomTemplate);
 			this.Controls.Add(this.pictureBoxBottomLine);

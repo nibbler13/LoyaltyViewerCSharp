@@ -38,6 +38,7 @@
 			// 
 			// pictureBoxRecommendation
 			// 
+			this.pictureBoxRecommendation.BackColor = System.Drawing.Color.Transparent;
 			this.pictureBoxRecommendation.Image = global::LoyaltyViewer.Properties.Resources.picture_recommendation;
 			this.pictureBoxRecommendation.Location = new System.Drawing.Point(174, 236);
 			this.pictureBoxRecommendation.Name = "pictureBoxRecommendation";
@@ -49,6 +50,7 @@
 			// labelInfoRecommendation
 			// 
 			this.labelInfoRecommendation.AutoSize = true;
+			this.labelInfoRecommendation.BackColor = System.Drawing.Color.Transparent;
 			this.labelInfoRecommendation.Location = new System.Drawing.Point(165, 661);
 			this.labelInfoRecommendation.Name = "labelInfoRecommendation";
 			this.labelInfoRecommendation.Size = new System.Drawing.Size(203, 26);
@@ -59,6 +61,7 @@
 			// labelLocationRecommendation
 			// 
 			this.labelLocationRecommendation.AutoSize = true;
+			this.labelLocationRecommendation.BackColor = System.Drawing.Color.Transparent;
 			this.labelLocationRecommendation.Location = new System.Drawing.Point(194, 791);
 			this.labelLocationRecommendation.Name = "labelLocationRecommendation";
 			this.labelLocationRecommendation.Size = new System.Drawing.Size(130, 26);
@@ -68,6 +71,7 @@
 			// 
 			// pictureBoxMarks
 			// 
+			this.pictureBoxMarks.BackColor = System.Drawing.Color.Transparent;
 			this.pictureBoxMarks.Image = global::LoyaltyViewer.Properties.Resources.picture_prolan3000;
 			this.pictureBoxMarks.Location = new System.Drawing.Point(1028, 236);
 			this.pictureBoxMarks.Name = "pictureBoxMarks";
@@ -79,6 +83,7 @@
 			// labelInfoMarks
 			// 
 			this.labelInfoMarks.AutoSize = true;
+			this.labelInfoMarks.BackColor = System.Drawing.Color.Transparent;
 			this.labelInfoMarks.Location = new System.Drawing.Point(1219, 765);
 			this.labelInfoMarks.Name = "labelInfoMarks";
 			this.labelInfoMarks.Size = new System.Drawing.Size(94, 26);
@@ -89,6 +94,7 @@
 			// labelLocationMarks
 			// 
 			this.labelLocationMarks.AutoSize = true;
+			this.labelLocationMarks.BackColor = System.Drawing.Color.Transparent;
 			this.labelLocationMarks.Location = new System.Drawing.Point(1182, 868);
 			this.labelLocationMarks.Name = "labelLocationMarks";
 			this.labelLocationMarks.Size = new System.Drawing.Size(160, 13);
@@ -100,7 +106,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 600);
+			this.ClientSize = new System.Drawing.Size(1920, 1080);
 			this.Controls.Add(this.labelLocationMarks);
 			this.Controls.Add(this.labelInfoMarks);
 			this.Controls.Add(this.pictureBoxMarks);

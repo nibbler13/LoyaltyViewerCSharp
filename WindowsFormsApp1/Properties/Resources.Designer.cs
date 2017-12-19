@@ -252,6 +252,16 @@ namespace LoyaltyViewer.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap new_year_stars {
+            get {
+                object obj = ResourceManager.GetObject("new-year-stars", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap picture_prolan3000 {
             get {
                 object obj = ResourceManager.GetObject("picture_prolan3000", resourceCulture);

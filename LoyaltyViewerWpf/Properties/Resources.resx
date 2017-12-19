@@ -117,99 +117,41 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="FormRecommendationLabelYesterday" xml:space="preserve">
-    <value>Вчера
-проголосовало пациентов:</value>
-  </data>
-  <data name="FormDoctorsMarksLabelToday" xml:space="preserve">
+  <data name="DoctorsMarksLabelToday" xml:space="preserve">
     <value>Сегодня поставлено
 оценок:</value>
   </data>
-  <data name="FormInfoRecommendationLocation" xml:space="preserve">
-    <value>Терминал установлен
-на стойке регистратуры</value>
-  </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="touch" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\touch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="bottom_line_continues_clear" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\bottom line continues clear.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="smile_happy" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\smile_happy.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="butterfly_clear" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\butterfly clear.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="FormDoctorsMarksTitle" xml:space="preserve">
-    <value>Оценка приёмов наших врачей
-по мнению пациентов</value>
-  </data>
-  <data name="bottom_line_template" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\bottom line template.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="icon_dislike" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\icon_dislike.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="FormRecommendationLabelToday" xml:space="preserve">
-    <value>Сегодня
-проголосовало пациентов:</value>
-  </data>
-  <data name="icon_like" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\icon_like.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="picture_prolan3000" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\picture_prolan3000.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="FormInfoQualityLabel" xml:space="preserve">
-    <value>"Пожалуйста, оцените качество
-приёма у врача"</value>
-  </data>
-  <data name="FormRecommendationTitle" xml:space="preserve">
-    <value>Нашу клинику готовы порекомендовать
-друзьям и знакомым</value>
-  </data>
-  <data name="picture_recommendation" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\picture_recommendation.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="smile_neutral" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\smile_neutral.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="loyalty_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\loyalty_icon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="smile_love" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\smile_love.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="FormDoctorsMarksLabelYesterday" xml:space="preserve">
+  <data name="DoctorsMarksLabelYesterday" xml:space="preserve">
     <value>Вчера поставлено
 оценок:</value>
   </data>
-  <data name="FormInfoTitle" xml:space="preserve">
+  <data name="RecommendationLabelToday" xml:space="preserve">
+    <value>Сегодня
+проголосовало пациентов:</value>
+  </data>
+  <data name="RecommendationLabelYesterday" xml:space="preserve">
+    <value>Вчера
+проголосовало пациентов:</value>
+  </data>
+  <data name="WindowMainTitleAbout" xml:space="preserve">
     <value>Нам важно Ваше мнение о нас</value>
   </data>
-  <data name="smile_sad" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\smile_sad.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="FontFamilyMain" xml:space="preserve">
+    <value>Franklin Gothic Book</value>
   </data>
-  <data name="FormInfoRecommendationLabel" xml:space="preserve">
-    <value>"Порекомендуете ли Вы нашу клинику
-Вашим друзьям и знакомым?"</value>
+  <data name="AboutTItle" xml:space="preserve">
+    <value>Просим Вас уделить пару минут и оценить качество нашей работы,
+воспользовавшись терминалом*:</value>
   </data>
-  <data name="icon_dont_know" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\icon_dont_know.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="AboutSubTitle" xml:space="preserve">
+    <value>*терминал расположен в холле клиники</value>
   </data>
-  <data name="smile_angry" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\smile_angry.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="WindowMainTitleClinicRecommendations" xml:space="preserve">
+    <value>Нашу клинику готовы порекомендовать
+друзьям и знакомым</value>
   </data>
-  <data name="man" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\man.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="FormInfoQualityLocation" xml:space="preserve">
-    <value>Терминал установлен
-в холле клиники</value>
-  </data>
-  <data name="new-year-stars" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\new-year-stars.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="WindowMainTitleDoctorsMarks" xml:space="preserve">
+    <value>Оценка приёмов наших врачей
+по мнению пациентов</value>
   </data>
 </root>

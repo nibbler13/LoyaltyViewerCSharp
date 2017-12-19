@@ -262,3 +262,4 @@ __pycache__/
 *.config
 WindowsFormsApp1/Properties/Settings.Designer.cs
 *.settings
+LoyaltyViewerWpf/Properties/Settings.Designer.cs
