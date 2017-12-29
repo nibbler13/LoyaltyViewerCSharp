@@ -102,7 +102,7 @@ namespace LoyaltyViewerWpf {
 			Loaded += PageDoctorsMarks_Loaded;
 		}
 
-		private BitmapImage GetResourceImage(string name) {
+		public static BitmapImage GetResourceImage(string name) {
 			BitmapImage image = new BitmapImage();
 			image.BeginInit();
 			image.UriSource = new Uri("pack://application:,,,/LoyaltyViewerWpf;component/Resources/" + name + ".png");

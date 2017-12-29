@@ -140,18 +140,20 @@
     <value>Franklin Gothic Book</value>
   </data>
   <data name="AboutTItle" xml:space="preserve">
-    <value>Просим Вас уделить пару минут и оценить качество нашей работы,
-воспользовавшись терминалом*:</value>
+    <value>Просим Вас уделить пару минут и оценить качество нашей работы</value>
   </data>
   <data name="AboutSubTitle" xml:space="preserve">
-    <value>*терминал расположен в холле клиники</value>
+    <value>Терминал расположен в холле клиники</value>
   </data>
   <data name="WindowMainTitleClinicRecommendations" xml:space="preserve">
-    <value>Нашу клинику готовы порекомендовать
-друзьям и знакомым</value>
+    <value>Рекомендации нашей клиники</value>
   </data>
   <data name="WindowMainTitleDoctorsMarks" xml:space="preserve">
-    <value>Оценка приёмов наших врачей
-по мнению пациентов</value>
+    <value>Мнение пациентов о работе наших врачей</value>
+  </data>
+  <data name="AboutDeveloper" xml:space="preserve">
+    <value>Разработка приложения:
+ООО "Клиника ЛМС"
+dev@bzklinika.ru</value>
   </data>
 </root>

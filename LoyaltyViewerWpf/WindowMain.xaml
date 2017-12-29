@@ -26,8 +26,12 @@
             <RowDefinition Height="15"/>
         </Grid.RowDefinitions>
         
-        <Canvas Grid.ColumnSpan="2" Grid.RowSpan="3" x:Name="canvasSnowfall" Visibility="Hidden"/>
+        <Canvas Grid.ColumnSpan="2" Grid.RowSpan="2" x:Name="canvasSnowfall" Visibility="Hidden"/>
         
+        <TextBlock Grid.ColumnSpan="2" Grid.RowSpan="2" Text="{Binding AboutDeveloper}" 
+                   VerticalAlignment="Bottom" HorizontalAlignment="Left" 
+                   Margin="10" x:Name="TextBlockAboutDeveloper"/>
+
         <TextBlock Grid.Row="0" Grid.Column="0" 
                    Text="{Binding TitleText}" 
                    Margin="20,20,0,0" 
@@ -38,6 +42,7 @@
                 <DropShadowEffect Opacity="0.2" Color="#FFC9C9C9"/>
             </TextBlock.Effect>
         </TextBlock>
+        
         <Image Grid.Row="0" Grid.Column="1" Source="Resources/ButterflyClear.png" 
                HorizontalAlignment="Right" Margin="0,20,20,0" x:Name="imageLogo"/>
         
@@ -48,11 +53,14 @@
             </Frame.Effect>
         </Frame>
         
-        <Image Grid.Row="1" Source="Resources/PicChristmasTree.png" HorizontalAlignment="Left" VerticalAlignment="Bottom" 
+        <!--
+        <Image Grid.Row="1" Grid.Column="1" Source="Resources/PicChristmasTree.png" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
                Margin="20,0,20,20" Stretch="Uniform" Visibility="Hidden" Width="{Binding ActualWidth, ElementName=imageLogo}" 
                Height="{Binding ActualHeight,ElementName=imageLogo}" x:Name="imageChristmasTree"/>
+        -->
         
         <Image Grid.Row="2" Grid.Column="0" Height="15" Stretch="Fill" Source="Resources/BottomLineTemplate.png"/>
+        
         <Image Grid.Row="2" Grid.Column="1" Source="Resources/BottomLineContinuesClear.png" Height="15"/>
     </Grid>
 </Window>

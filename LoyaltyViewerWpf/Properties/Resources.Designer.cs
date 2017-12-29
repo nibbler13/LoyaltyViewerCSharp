@@ -61,7 +61,18 @@ namespace LoyaltyViewerWpf.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на *терминал расположен в холле клиники.
+        ///   Ищет локализованную строку, похожую на Разработка приложения:
+        ///ООО &quot;Клиника ЛМС&quot;
+        ///dev@bzklinika.ru.
+        /// </summary>
+        public static string AboutDeveloper {
+            get {
+                return ResourceManager.GetString("AboutDeveloper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Терминал расположен в холле клиники.
         /// </summary>
         public static string AboutSubTitle {
             get {
@@ -70,8 +81,7 @@ namespace LoyaltyViewerWpf.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Просим Вас уделить пару минут и оценить качество нашей работы,
-        ///воспользовавшись терминалом*:.
+        ///   Ищет локализованную строку, похожую на Просим Вас уделить пару минут и оценить качество нашей работы.
         /// </summary>
         public static string AboutTItle {
             get {
@@ -138,8 +148,7 @@ namespace LoyaltyViewerWpf.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Нашу клинику готовы порекомендовать
-        ///друзьям и знакомым.
+        ///   Ищет локализованную строку, похожую на Рекомендации нашей клиники.
         /// </summary>
         public static string WindowMainTitleClinicRecommendations {
             get {
@@ -148,8 +157,7 @@ namespace LoyaltyViewerWpf.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Оценка приёмов наших врачей
-        ///по мнению пациентов.
+        ///   Ищет локализованную строку, похожую на Мнение пациентов о работе наших врачей.
         /// </summary>
         public static string WindowMainTitleDoctorsMarks {
             get {

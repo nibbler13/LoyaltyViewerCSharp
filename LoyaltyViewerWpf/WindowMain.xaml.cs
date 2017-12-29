@@ -52,14 +52,20 @@ namespace LoyaltyViewerWpf {
 			}
 		}
 
+		public string AboutDeveloper { get; set; }
+
 		public WindowMain() {
 			InitializeComponent();
 
 			SystemLogging.LogMessageToFile("==================================" +
 				Environment.NewLine + "Создание основного окна");
 
-			DataContext = this;
-			FontSizeMain = Height * 0.05;
+			if (System.Windows.SystemParameters.PrimaryScreenWidth / 
+				System.Windows.SystemParameters.PrimaryScreenHeight >= 1.5)
+				FontSizeMain = Height * 0.05;
+			else
+				FontSizeMain = Height * 0.03;
+
 			FontSizeHeader = FontSizeMain * 1.5;
 			FontFamilyMain = new FontFamily(Properties.Resources.FontFamilyMain);
 			TitleText = Properties.Resources.WindowMainTitleAbout;
@@ -89,7 +95,8 @@ namespace LoyaltyViewerWpf {
 			int currentMonth = DateTime.Now.Month;
 			if ((currentMonth == 12 && currentDay >= 10) ||
 				(currentMonth == 1 && currentDay <= 9)) {
-				imageChristmasTree.Visibility = Visibility.Visible;
+				//imageChristmasTree.Visibility = Visibility.Visible;
+				imageLogo.Source = PageMarks.GetResourceImage("PicChristmasTree");
 				canvasSnowfall.Visibility = Visibility.Visible;
 				List<string> snows = new List<string>();
 				for (int i = 1; i <= 9; i++)
@@ -97,6 +104,17 @@ namespace LoyaltyViewerWpf {
 				SnowEngine snow = new SnowEngine(canvasSnowfall, snows.ToArray());
 				snow.Start();
 			}
+
+			AboutDeveloper = Properties.Resources.AboutDeveloper;
+			TextBlockAboutDeveloper.FontSize = FontSizeMain / 2;
+
+			TextBlockAboutDeveloper.Foreground = new SolidColorBrush(
+				Color.FromArgb(Properties.Settings.Default.FontSubColor.A,
+				Properties.Settings.Default.FontSubColor.R,
+				Properties.Settings.Default.FontSubColor.G,
+				Properties.Settings.Default.FontSubColor.B));
+
+			DataContext = this;
 		}
 
 		private void Frame_Navigating(object sender, NavigatingCancelEventArgs e) {
