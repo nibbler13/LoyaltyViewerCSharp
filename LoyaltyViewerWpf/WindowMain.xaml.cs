@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -68,34 +69,23 @@ namespace LoyaltyViewerWpf {
 
 			FontSizeHeader = FontSizeMain * 1.5;
 			FontFamilyMain = new FontFamily(Properties.Resources.FontFamilyMain);
-			TitleText = Properties.Resources.WindowMainTitleAbout;
 
-			ForegroundColorMain = new SolidColorBrush(Color.FromArgb(Properties.Settings.Default.FontMainColor.A,
-				Properties.Settings.Default.FontMainColor.R,
-				Properties.Settings.Default.FontMainColor.G,
-				Properties.Settings.Default.FontMainColor.B));
-
-			KeyDown += WindowMain_KeyDown;
-
+			ForegroundColorMain = new SolidColorBrush(Color.FromArgb(Properties.Settings.Default.ColorFontMain.A,
+				Properties.Settings.Default.ColorFontMain.R,
+				Properties.Settings.Default.ColorFontMain.G,
+				Properties.Settings.Default.ColorFontMain.B));
+			
 			if (!Properties.Settings.Default.IsDebug &&
 				!Environment.MachineName.Equals("MSSU-DEV")) {
 				Topmost = true;
 				Cursor = Cursors.None;
 			}
 
-			DispatcherTimer dispatcherTimer = new DispatcherTimer();
-			dispatcherTimer.Interval = TimeSpan.FromSeconds(Properties.Settings.Default.PageChangingPeriodInSeconds);
-			dispatcherTimer.Tick += DispatcherTimer_Tick;
-			dispatcherTimer.Start();
-
-			frame.Navigated += Frame_Navigated;
-			frame.Navigating += Frame_Navigating;
-
+			//New year theme
 			int currentDay = DateTime.Now.Day;
 			int currentMonth = DateTime.Now.Month;
 			if ((currentMonth == 12 && currentDay >= 10) ||
 				(currentMonth == 1 && currentDay <= 9)) {
-				//imageChristmasTree.Visibility = Visibility.Visible;
 				imageLogo.Source = PageMarks.GetResourceImage("PicChristmasTree");
 				canvasSnowfall.Visibility = Visibility.Visible;
 				List<string> snows = new List<string>();
@@ -108,13 +98,60 @@ namespace LoyaltyViewerWpf {
 			AboutDeveloper = Properties.Resources.AboutDeveloper;
 			TextBlockAboutDeveloper.FontSize = FontSizeMain / 2;
 
-			TextBlockAboutDeveloper.Foreground = new SolidColorBrush(
-				Color.FromArgb(Properties.Settings.Default.FontSubColor.A,
-				Properties.Settings.Default.FontSubColor.R,
-				Properties.Settings.Default.FontSubColor.G,
-				Properties.Settings.Default.FontSubColor.B));
+			TextBlockAboutDeveloper.Foreground = BrushFromRGB(Properties.Settings.Default.ColorFontAboutDeveloper);
+
+
+
+
+			if (Properties.Settings.Default.ShowLoyaltyInfo) {
+				TitleText = Properties.Resources.WindowMainTitleAbout;
+
+				//Uri uri = new Uri("pack://application:,,,/PageAbout.xaml");
+				//frame.Source = uri;
+				//frame.Navigate(uri);
+
+				frame.Navigated += Frame_Navigated;
+				frame.Navigating += Frame_Navigating;
+
+				DispatcherTimer dispatcherTimer = new DispatcherTimer();
+				dispatcherTimer.Interval = TimeSpan.FromSeconds(Properties.Settings.Default.PageChangingPeriodInSeconds);
+				dispatcherTimer.Tick += DispatcherTimer_Tick;
+				dispatcherTimer.Start();
+			} else if (Properties.Settings.Default.ShowPromoJustNow) {
+				BackgroundWorker backgroundWorkerPromoJustNow = new BackgroundWorker();
+				backgroundWorkerPromoJustNow.DoWork += BackgroundWorkerPromoJustNow_DoWork;
+				backgroundWorkerPromoJustNow.RunWorkerCompleted += BackgroundWorkerPromoJustNow_RunWorkerCompleted;
+				backgroundWorkerPromoJustNow.RunWorkerAsync();
+			} else {
+
+			}
+
+
+
+			KeyDown += WindowMain_KeyDown;
 
 			DataContext = this;
+		}
+
+		private void BackgroundWorkerPromoJustNow_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+			TitleText = Properties.Resources.WindowMainTItlePromoJustNow;
+			imageLogo.Visibility = Visibility.Hidden;
+			LabelTitle.Margin = new Thickness(0);
+			LabelTitle.Background = BrushFromRGB(Properties.Settings.Default.ColorTitlePromoBackground);
+			LabelTitle.Foreground = BrushFromRGB(Properties.Settings.Default.ColorTitlePromoForeground);
+			LabelTitle.VerticalContentAlignment = VerticalAlignment.Center;
+			LabelTitle.HorizontalContentAlignment = HorizontalAlignment.Center;
+
+			PagePromoJustNow pagePromoJustNow = new PagePromoJustNow(dataService.GetPromoJustNow());
+			frame.Navigate(pagePromoJustNow);
+		}
+
+		private void BackgroundWorkerPromoJustNow_DoWork(object sender, DoWorkEventArgs e) {
+			throw new NotImplementedException();
+		}
+
+		public static SolidColorBrush BrushFromRGB(System.Drawing.Color color) {
+			return new SolidColorBrush(Color.FromArgb(color.A, color.R, color.G, color.B));
 		}
 
 		private void Frame_Navigating(object sender, NavigatingCancelEventArgs e) {

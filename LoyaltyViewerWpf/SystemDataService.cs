@@ -16,7 +16,14 @@ namespace LoyaltyViewerWpf {
 		private ItemDataResult recommendationToday = new ItemDataResult();
 		private ItemDataResult recommendationYesterday = new ItemDataResult();
 
-		private enum Types { QualityToday, QualityYesterday, RecommendationToday, RecommendationYesterday };
+		private enum Types {
+			QualityToday,
+			QualityYesterday,
+			RecommendationToday,
+			RecommendationYesterday
+		};
+
+		private ItemPromoJustNow _promoJustNow = new ItemPromoJustNow();
 		
 		private SystemFirebirdClient fBClient;
 
@@ -40,33 +47,162 @@ namespace LoyaltyViewerWpf {
 			UpdateData();
 		}
 
-		private void UpdateData() {
-			SystemLogging.LogMessageToFile("Запрос обновления данных");
 
-			GetQualityData(Types.QualityToday);
-			GetQualityData(Types.RecommendationToday);
+
+
+		private void UpdateData() {
+			SystemLogging.LogMessageToFile("Обновление данных");
+
+			if (Properties.Settings.Default.ShowLoyaltyInfo) {
+				SystemLogging.LogMessageToFile("Результаты голосования на мониторе лояльности");
+				GetQualityData(Types.QualityToday);
+				GetQualityData(Types.RecommendationToday);
+
+				if (lastUpdateDay != DateTime.Now.Day) {
+					errorsCountMisDb = 0;
+					needToSendToStp = true;
+
+					GetQualityData(Types.QualityYesterday);
+					GetQualityData(Types.RecommendationYesterday);
+
+					lastUpdateDay = DateTime.Now.Day;
+				}
+			}
+
+			if (Properties.Settings.Default.ShowPromoJustNow) {
+				SystemLogging.LogMessageToFile("Данные по свободным ячейкам в расписании");
+				GetPromoJustNowData();
+			}
 
 			if (errorsCountMisDb > 30 && needToSendToStp) {
 				SystemMail.SendMail("Сервису " + Assembly.GetExecutingAssembly().GetName().Name +
 					" не удалось получить данные с сервера " + Properties.Settings.Default.MisDbAddress + ":" +
-					Properties.Settings.Default.MisDbName + Environment.NewLine + Environment.NewLine +
-					"Используемые запросы: " + Environment.NewLine +
-					Properties.Settings.Default.MisDbSelectQueryDocrateToday + Environment.NewLine +
-					Properties.Settings.Default.MisDbSelectQueryDocrateYesterday + Environment.NewLine +
-					Properties.Settings.Default.MisDbSelectQueryClRecommendToday);
+					Properties.Settings.Default.MisDbName + Environment.NewLine + Environment.NewLine);
 				needToSendToStp = false;
 			}
+		}
 
-			if (lastUpdateDay == DateTime.Now.Day)
+		private void GetPromoJustNowData() {
+			string queryDoctors = Properties.Settings.Default.MisDbSelectQueryPromoJustNowDoctors;
+			string queryBusy = Properties.Settings.Default.MisDbSelectQueryPromoJustNowBusy;
+			string depnums = Properties.Settings.Default.PromoJustNowDepartments;
+
+			queryDoctors = queryDoctors.Replace("@depnums", depnums);
+			queryBusy = queryBusy.Replace("@depnums", depnums);
+
+			DataTable dataTableDoctors = fBClient.GetDataTable(queryDoctors, new Dictionary<string, string>(), ref errorsCountMisDb);
+			DataTable dataTableBusy = fBClient.GetDataTable(queryBusy, new Dictionary<string, string>(), ref errorsCountMisDb);
+
+			if (dataTableDoctors.Rows.Count == 0)
 				return;
 
-			errorsCountMisDb = 0;
-			needToSendToStp = true;
+			DateTime dateTimeNow = GetDateTime("12", "00"); //DateTime.Now;
+			DateTime dateTimeMaxToShow = dateTimeNow.AddMinutes(Properties.Settings.Default.PromoJustNowShowIntervalMinutes);
 
-			GetQualityData(Types.QualityYesterday);
-			GetQualityData(Types.RecommendationYesterday);
+			SystemLogging.LogMessageToFile("Total doctors: " + dataTableDoctors.Rows.Count);
 
-			lastUpdateDay = DateTime.Now.Day;
+			foreach (DataRow rowDoctor in dataTableDoctors.Rows) {
+				try {
+					string fullname = rowDoctor["FULLNAME"].ToString();
+					string dcode = rowDoctor["DCODE"].ToString();
+					string depname = rowDoctor["DEPNAME"].ToString();
+					string depnum = rowDoctor["DEPNUM"].ToString();
+					string beghour = rowDoctor["BEGHOUR"].ToString();
+					string begmin = rowDoctor["BEGMIN"].ToString();
+					string endhour = rowDoctor["ENDHOUR"].ToString();
+					string endmin = rowDoctor["ENDMIN"].ToString();
+					string shinterv = rowDoctor["SHINTERV"].ToString();
+
+					Console.WriteLine("fullname: " + fullname);
+
+					DateTime dateTimeBegin = GetDateTime(beghour, begmin);
+					DateTime dateTimeEnd = GetDateTime(endhour, endmin);
+
+					if (dateTimeBegin >= dateTimeNow ||
+						dateTimeEnd <= dateTimeNow) {
+						SystemLogging.LogMessageToFile("Doctor '" + fullname + "' working interval outside current time");
+						continue;
+					}
+
+					ItemDoctor itemDoctor = new ItemDoctor(fullname);
+					int.TryParse(shinterv, out int duration);
+					DataRow[] dataTableBusyCurrentDoc = dataTableBusy.Select("DCODE = " + dcode);
+					DateTime dateTimeIntervalStart = dateTimeNow.AddMinutes(Properties.Settings.Default.PromoJustNowTreatStartDelayMinutes);
+					
+					while (true) {
+						if (dateTimeIntervalStart >= dateTimeEnd ||
+							dateTimeIntervalStart >= dateTimeMaxToShow)
+							break;
+
+						DateTime dateTimeIntervalEnd = dateTimeIntervalStart.AddMinutes(duration);
+
+						if (dateTimeIntervalEnd > dateTimeEnd ||
+							dateTimeIntervalEnd > dateTimeMaxToShow)
+							break;
+
+						bool isBusy = false;
+						foreach (DataRow dataRowBusyCell in dataTableBusyCurrentDoc) {
+							try {
+								string bhour = dataRowBusyCell["BHOUR"].ToString();
+								string bmin = dataRowBusyCell["BMIN"].ToString();
+								string fhour = dataRowBusyCell["FHOUR"].ToString();
+								string fmin = dataRowBusyCell["FMIN"].ToString();
+
+								DateTime busyStart = GetDateTime(bhour, bmin);
+								DateTime busyEnd = GetDateTime(fhour, fmin);
+
+								if (busyStart >= dateTimeIntervalEnd ||
+									busyEnd <= dateTimeIntervalStart)
+									continue;
+
+								isBusy = true;
+								dateTimeIntervalStart = busyEnd;
+
+								break;
+							} catch (Exception excBusy) {
+								SystemLogging.LogMessageToFile(excBusy.Message + Environment.NewLine + excBusy.StackTrace);
+							}
+						}
+
+						if (isBusy)
+							continue;
+
+						ItemFreeCell itemFreeCell = new ItemFreeCell(dateTimeIntervalStart, dateTimeIntervalEnd);
+						itemDoctor.FreeCells.Add(itemFreeCell);
+						dateTimeIntervalStart = dateTimeIntervalEnd;
+					}
+
+					if (itemDoctor.FreeCells.Count == 0) {
+						SystemLogging.LogMessageToFile("Doctor '" + itemDoctor.Name + "' has no free cells");
+						continue;
+					}
+
+					SystemLogging.LogMessageToFile("Doctor '" + itemDoctor.Name + "' free cells count: " + itemDoctor.FreeCells.Count);
+
+					if (_promoJustNow.Departments.ContainsKey(depname)) {
+						_promoJustNow.Departments[depname].Doctors.Add(itemDoctor);
+					} else {
+						ItemDepartment itemDepartment = new ItemDepartment(depname);
+						itemDepartment.Doctors.Add(itemDoctor);
+						_promoJustNow.Departments.Add(depname, itemDepartment);
+					}
+				} catch (Exception excDoc) {
+					SystemLogging.LogMessageToFile(excDoc.Message + Environment.NewLine + excDoc.StackTrace);
+				}
+			}
+
+			Console.WriteLine();
+		}
+
+		private DateTime GetDateTime(string hour, string minute) {
+			DateTime today = DateTime.Now;
+			int.TryParse(hour, out int intHour);
+			int.TryParse(minute, out int intMinute);
+			return new DateTime(today.Year, today.Month, today.Day, intHour, intMinute, 0);
+		}
+
+		public ItemPromoJustNow GetPromoJustNow() {
+			return _promoJustNow;
 		}
 
 		private void GetQualityData(Types type) {

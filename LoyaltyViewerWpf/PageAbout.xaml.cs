@@ -24,10 +24,10 @@ namespace LoyaltyViewerWpf {
 		public PageAbout() {
             InitializeComponent();
 
-			ForegroundColorSub = new SolidColorBrush(Color.FromArgb(Properties.Settings.Default.FontSubColor.A,
-				Properties.Settings.Default.FontSubColor.R,
-				Properties.Settings.Default.FontSubColor.G,
-				Properties.Settings.Default.FontSubColor.B));
+			ForegroundColorSub = new SolidColorBrush(Color.FromArgb(Properties.Settings.Default.ColorFontSub.A,
+				Properties.Settings.Default.ColorFontSub.R,
+				Properties.Settings.Default.ColorFontSub.G,
+				Properties.Settings.Default.ColorFontSub.B));
 
 			DataContext = this;
 			Loaded += PageAbout_Loaded;

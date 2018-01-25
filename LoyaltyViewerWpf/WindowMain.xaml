@@ -16,51 +16,55 @@
         FontFamily="{Binding FontFamilyMain}"
         Foreground="{Binding ForegroundColorMain}">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="17*"/>
-            <RowDefinition Height="73*"/>
+            <RowDefinition Height="15*"/>
+            <RowDefinition Height="85*"/>
             <RowDefinition Height="15"/>
         </Grid.RowDefinitions>
         
-        <Canvas Grid.ColumnSpan="2" Grid.RowSpan="2" x:Name="canvasSnowfall" Visibility="Hidden"/>
+        <Canvas Grid.RowSpan="2" x:Name="canvasSnowfall" Visibility="Hidden"/>
         
-        <TextBlock Grid.ColumnSpan="2" Grid.RowSpan="2" Text="{Binding AboutDeveloper}" 
+        <TextBlock Grid.RowSpan="2" Text="{Binding AboutDeveloper}" 
                    VerticalAlignment="Bottom" HorizontalAlignment="Left" 
                    Margin="10" x:Name="TextBlockAboutDeveloper"/>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" 
-                   Text="{Binding TitleText}" 
-                   Margin="20,20,0,0" 
-                   FontSize="{Binding FontSizeHeader}" 
-                   FontWeight="DemiBold" 
-                   TextWrapping="Wrap">
-            <TextBlock.Effect>
+        <Label Content="{Binding TitleText}"
+               Margin="20,20,0,0" 
+               FontSize="{Binding FontSizeHeader}" 
+               FontWeight="DemiBold" 
+               x:Name="LabelTitle">
+            <Label.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="TextWrapping" Value="Wrap"/>
+                </Style>
+            </Label.Resources>
+            <Label.Effect>
                 <DropShadowEffect Opacity="0.2" Color="#FFC9C9C9"/>
-            </TextBlock.Effect>
-        </TextBlock>
-        
-        <Image Grid.Row="0" Grid.Column="1" Source="Resources/ButterflyClear.png" 
+            </Label.Effect>
+        </Label>
+
+        <WrapPanel HorizontalAlignment="Right" Margin="0,20,20,0" x:Name="stackPanelCurrentTime" Orientation="Horizontal">
+            <Image Source="Resources/TimeIcon.png" Stretch="None" Margin="0,0,5,0" VerticalAlignment="Center"/>
+            <TextBlock Text="10:05" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0,0,0" Foreground="White"/>
+        </WrapPanel>
+        <Image Source="Resources/ButterflyClear.png" 
                HorizontalAlignment="Right" Margin="0,20,20,0" x:Name="imageLogo"/>
-        
-        <Frame Grid.Row="1" Grid.ColumnSpan="2" Grid.RowSpan="3" Source="/LoyaltyViewerWpf;component/PageAbout.xaml" 
-               x:Name="frame" NavigationUIVisibility="Hidden">
+
+        <Frame Grid.Row="1" x:Name="frame" NavigationUIVisibility="Hidden" Source="/LoyaltyViewerWpf;component/PageAbout.xaml">
+            <!--
             <Frame.Effect>
                 <DropShadowEffect Color="#FFC9C9C9" Opacity="0.2"/>
             </Frame.Effect>
+            -->
         </Frame>
-        
-        <!--
-        <Image Grid.Row="1" Grid.Column="1" Source="Resources/PicChristmasTree.png" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-               Margin="20,0,20,20" Stretch="Uniform" Visibility="Hidden" Width="{Binding ActualWidth, ElementName=imageLogo}" 
-               Height="{Binding ActualHeight,ElementName=imageLogo}" x:Name="imageChristmasTree"/>
-        -->
-        
-        <Image Grid.Row="2" Grid.Column="0" Height="15" Stretch="Fill" Source="Resources/BottomLineTemplate.png"/>
-        
-        <Image Grid.Row="2" Grid.Column="1" Source="Resources/BottomLineContinuesClear.png" Height="15"/>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Image Grid.Column="0" Height="15" Stretch="Fill" Source="Resources/BottomLineTemplate.png"/>
+            <Image Grid.Column="1" Source="Resources/BottomLineContinuesClear.png" Height="15"/>
+        </Grid>
     </Grid>
 </Window>

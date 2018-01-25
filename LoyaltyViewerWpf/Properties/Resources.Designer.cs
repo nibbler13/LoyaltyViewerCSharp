@@ -119,6 +119,15 @@ namespace LoyaltyViewerWpf.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на *Скидка предоставляется только при записи за наличный расчет и не суммируется с другими акциями..
+        /// </summary>
+        public static string PromoJustNowSubtitle {
+            get {
+                return ResourceManager.GetString("PromoJustNowSubtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Сегодня
         ///проголосовало пациентов:.
         /// </summary>
@@ -162,6 +171,15 @@ namespace LoyaltyViewerWpf.Properties {
         public static string WindowMainTitleDoctorsMarks {
             get {
                 return ResourceManager.GetString("WindowMainTitleDoctorsMarks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Только сейчас - скидка 30% на приём*.
+        /// </summary>
+        public static string WindowMainTItlePromoJustNow {
+            get {
+                return ResourceManager.GetString("WindowMainTItlePromoJustNow", resourceCulture);
             }
         }
     }

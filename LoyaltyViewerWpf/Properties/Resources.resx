@@ -156,4 +156,10 @@
 ООО "Клиника ЛМС"
 dev@bzklinika.ru</value>
   </data>
+  <data name="PromoJustNowSubtitle" xml:space="preserve">
+    <value>*Скидка предоставляется только при записи за наличный расчет и не суммируется с другими акциями.</value>
+  </data>
+  <data name="WindowMainTItlePromoJustNow" xml:space="preserve">
+    <value>Только сейчас - скидка 30% на приём*</value>
+  </data>
 </root>
