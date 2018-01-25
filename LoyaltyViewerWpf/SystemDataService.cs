@@ -96,8 +96,11 @@ namespace LoyaltyViewerWpf {
 			if (dataTableDoctors.Rows.Count == 0)
 				return;
 
-			DateTime dateTimeNow = GetDateTime("12", "00"); //DateTime.Now;
+			DateTime dateTimeNow = GetDateTime("13", "00"); //DateTime.Now; //
 			DateTime dateTimeMaxToShow = dateTimeNow.AddMinutes(Properties.Settings.Default.PromoJustNowShowIntervalMinutes);
+			_promoJustNow = new ItemPromoJustNow() {
+				DateTimeUpdated = dateTimeNow
+			};
 
 			SystemLogging.LogMessageToFile("Total doctors: " + dataTableDoctors.Rows.Count);
 
@@ -124,7 +127,7 @@ namespace LoyaltyViewerWpf {
 						continue;
 					}
 
-					ItemDoctor itemDoctor = new ItemDoctor(fullname);
+					ItemDoctor itemDoctor = new ItemDoctor(ClearName(fullname));
 					int.TryParse(shinterv, out int duration);
 					DataRow[] dataTableBusyCurrentDoc = dataTableBusy.Select("DCODE = " + dcode);
 					DateTime dateTimeIntervalStart = dateTimeNow.AddMinutes(Properties.Settings.Default.PromoJustNowTreatStartDelayMinutes);
@@ -168,7 +171,7 @@ namespace LoyaltyViewerWpf {
 							continue;
 
 						ItemFreeCell itemFreeCell = new ItemFreeCell(dateTimeIntervalStart, dateTimeIntervalEnd);
-						itemDoctor.FreeCells.Add(itemFreeCell);
+						itemDoctor.FreeCells.Add(itemFreeCell.Begin, itemFreeCell);
 						dateTimeIntervalStart = dateTimeIntervalEnd;
 					}
 
@@ -179,19 +182,31 @@ namespace LoyaltyViewerWpf {
 
 					SystemLogging.LogMessageToFile("Doctor '" + itemDoctor.Name + "' free cells count: " + itemDoctor.FreeCells.Count);
 
-					if (_promoJustNow.Departments.ContainsKey(depname)) {
-						_promoJustNow.Departments[depname].Doctors.Add(itemDoctor);
-					} else {
-						ItemDepartment itemDepartment = new ItemDepartment(depname);
-						itemDepartment.Doctors.Add(itemDoctor);
+					if (!_promoJustNow.Departments.ContainsKey(depname)) {
+						ItemDepartment itemDepartment = new ItemDepartment(depname.ToUpper());
 						_promoJustNow.Departments.Add(depname, itemDepartment);
 					}
+
+					_promoJustNow.Departments[depname].Doctors.Add(itemDoctor.Name, itemDoctor);
 				} catch (Exception excDoc) {
 					SystemLogging.LogMessageToFile(excDoc.Message + Environment.NewLine + excDoc.StackTrace);
 				}
 			}
 
 			Console.WriteLine();
+		}
+
+		private string ClearName(string value) {
+			string clearedName = value.Replace("  ", " ").TrimStart(' ').TrimEnd(' ');
+			if (clearedName.Contains("("))
+				clearedName = clearedName.Substring(0, clearedName.IndexOf('('));
+
+			string[] parts = clearedName.Split(' ');
+
+			if (parts.Length < 3)
+				return value;
+
+			return parts[0] + " " + parts[1] + " " + parts[2];
 		}
 
 		private DateTime GetDateTime(string hour, string minute) {

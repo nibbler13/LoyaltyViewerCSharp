@@ -137,12 +137,12 @@ namespace LoyaltyViewerWpf {
 			TitleText = Properties.Resources.WindowMainTItlePromoJustNow;
 			imageLogo.Visibility = Visibility.Hidden;
 			LabelTitle.Margin = new Thickness(0);
-			LabelTitle.Background = BrushFromRGB(Properties.Settings.Default.ColorTitlePromoBackground);
+			//LabelTitle.Background = BrushFromRGB(Properties.Settings.Default.ColorTitlePromoBackground);
 			LabelTitle.Foreground = BrushFromRGB(Properties.Settings.Default.ColorTitlePromoForeground);
 			LabelTitle.VerticalContentAlignment = VerticalAlignment.Center;
 			LabelTitle.HorizontalContentAlignment = HorizontalAlignment.Center;
 
-			PagePromoJustNow pagePromoJustNow = new PagePromoJustNow(dataService.GetPromoJustNow());
+			PagePromoJustNow pagePromoJustNow = new PagePromoJustNow(dataService.GetPromoJustNow(), TextBoxTime);
 			frame.Navigate(pagePromoJustNow);
 		}
 

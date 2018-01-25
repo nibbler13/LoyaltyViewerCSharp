@@ -31,7 +31,7 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Canvas Grid.Column="1" Grid.RowSpan="10" x:Name="CanvasMain"/>
+            <Canvas Grid.ColumnSpan="2" Grid.RowSpan="10" x:Name="CanvasMain"/>
         </Grid>
 
         <Grid Grid.Row="1">
@@ -42,7 +42,7 @@
             </Grid.ColumnDefinitions>
             <Label Grid.Column="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="10" Foreground="LightGray">
                 <TextBlock Text="{Binding SubtitleText}"
-                           TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Bottom" TextAlignment="Center"/>
+                           TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Bottom" TextAlignment="Center" x:Name="TextBlockSubtitle"/>
             </Label>
             <Image Grid.Column="2" Source="Resources/ButterflyClear.png" 
                HorizontalAlignment="Right" Margin="10" x:Name="imageLogo"/>

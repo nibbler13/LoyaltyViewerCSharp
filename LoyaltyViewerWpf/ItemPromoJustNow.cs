@@ -6,30 +6,31 @@ using System.Threading.Tasks;
 
 namespace LoyaltyViewerWpf {
 	public class ItemPromoJustNow {
-		public Dictionary<string, ItemDepartment> Departments { get; set; }
+		public DateTime DateTimeUpdated { get; set; }
+		public SortedDictionary<string, ItemDepartment> Departments { get; set; }
 
 		public ItemPromoJustNow() {
-			Departments = new Dictionary<string, ItemDepartment>();
+			Departments = new SortedDictionary<string, ItemDepartment>();
 		}
     }
 
 	public class ItemDepartment {
 		public string Name { get; set; }
-		public List<ItemDoctor> Doctors { get; set; }
+		public SortedDictionary<string, ItemDoctor> Doctors { get; set; }
 
 		public ItemDepartment(string Name) {
 			this.Name = Name;
-			Doctors = new List<ItemDoctor>();
+			Doctors = new SortedDictionary<string, ItemDoctor>();
 		}
 	}
 
 	public class ItemDoctor {
 		public string Name { get; set; }
-		public List<ItemFreeCell> FreeCells { get; set; }
+		public SortedDictionary<DateTime, ItemFreeCell> FreeCells { get; set; }
 
 		public ItemDoctor(string Name) {
 			this.Name = Name;
-			FreeCells = new List<ItemFreeCell>();
+			FreeCells = new SortedDictionary<DateTime, ItemFreeCell>();
 		}
 	}
 
