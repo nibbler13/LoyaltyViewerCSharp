@@ -58,6 +58,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="FaderFrame.cs" />
     <Compile Include="ItemPromoJustNow.cs" />
     <Compile Include="PagePromoJustNow.xaml.cs">
       <DependentUpon>PagePromoJustNow.xaml</DependentUpon>

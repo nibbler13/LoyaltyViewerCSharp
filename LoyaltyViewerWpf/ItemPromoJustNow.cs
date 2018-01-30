@@ -12,7 +12,21 @@ namespace LoyaltyViewerWpf {
 		public ItemPromoJustNow() {
 			Departments = new SortedDictionary<string, ItemDepartment>();
 		}
-    }
+
+		public override string ToString() {
+			string result = string.Empty;
+			if (DateTimeUpdated != null)
+				result += "Updated: " + DateTimeUpdated.ToLongTimeString() + Environment.NewLine;
+			foreach (KeyValuePair<string, ItemDepartment> department in Departments) {
+				result += "---" + department.Key + Environment.NewLine;
+				foreach (KeyValuePair<string, ItemDoctor> doctor in department.Value.Doctors) {
+					result += "-" + doctor.Key + Environment.NewLine;
+				}
+
+			}
+			return base.ToString() + Environment.NewLine + result;
+		}
+	}
 
 	public class ItemDepartment {
 		public string Name { get; set; }

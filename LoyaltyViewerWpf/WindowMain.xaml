@@ -15,9 +15,12 @@
         FontSize="{Binding FontSizeMain}"
         FontFamily="{Binding FontFamilyMain}"
         Foreground="{Binding ForegroundColorMain}">
+    <Window.Effect>
+        <DropShadowEffect/>
+    </Window.Effect>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="15*"/>
+            <RowDefinition Height="15*" x:Name="RowDefinitionTitle"/>
             <RowDefinition Height="85*"/>
             <RowDefinition Height="15"/>
         </Grid.RowDefinitions>
@@ -28,63 +31,30 @@
                    VerticalAlignment="Bottom" HorizontalAlignment="Left" 
                    Margin="10" x:Name="TextBlockAboutDeveloper"/>
 
-        <Label Content="{Binding TitleText}"
-               Margin="20,20,0,0" 
+        <Label Content="{Binding TitleText}" 
                FontSize="{Binding FontSizeHeader}" 
                FontWeight="DemiBold" 
-               x:Name="LabelTitle">
+               Margin="20,20,0,0"
+               x:Name="LabelTitle"
+               VerticalContentAlignment="Center"
+               HorizontalContentAlignment="Center"
+               Visibility="Visible">
             <Label.Resources>
                 <Style TargetType="TextBlock">
                     <Setter Property="TextWrapping" Value="Wrap"/>
                 </Style>
             </Label.Resources>
-            <Label.Effect>
-                <DropShadowEffect Opacity="0.2" Color="#FFC9C9C9"/>
-            </Label.Effect>
-            <Label.Background>
-                <SolidColorBrush x:Name="MySolidColorBrush" Color="Maroon" />
-            </Label.Background>
-            <!-- Animates the text block's color. -->
-            <Label.Triggers>
-                <EventTrigger RoutedEvent="TextBlock.Loaded">
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <ColorAnimation 
-                                Storyboard.TargetName="MySolidColorBrush"
-                                Storyboard.TargetProperty="Color"
-                                From="DarkOrange" To="SteelBlue" Duration="0:0:3"
-                                AutoReverse="True" RepeatBehavior="Forever" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-                <EventTrigger RoutedEvent="TextBlock.Loaded">
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimation
-                                Storyboard.TargetName="LabelTitle"
-                                Storyboard.TargetProperty="FontSize"
-                                From="60" To="80" Duration="0:0:3"
-                                AutoReverse="True" RepeatBehavior="Forever" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-            </Label.Triggers>
         </Label>
 
-        <WrapPanel HorizontalAlignment="Right" Margin="0,20,20,0" x:Name="WrapPanelCurrentTime" Orientation="Horizontal">
-            <Image Source="Resources/TimeIcon.png" Stretch="None" Margin="0,0,5,0" VerticalAlignment="Center"/>
-            <TextBlock Text="10:05" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0,0,0" Foreground="White" x:Name="TextBoxTime"/>
-        </WrapPanel>
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,20,0" x:Name="WrapPanelCurrentTime" Orientation="Horizontal" Visibility="Hidden">
+            <Image Source="Resources/TimeIcon.png" Margin="0,0,5,0" VerticalAlignment="Center" MaxHeight="40" Stretch="Fill"/>
+            <TextBlock Text="10:05" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0,0,0" Foreground="White" x:Name="TextBlockTime"/>
+        </StackPanel>
+        
         <Image Source="Resources/ButterflyClear.png" 
-               HorizontalAlignment="Right" Margin="0,20,20,0" x:Name="imageLogo"/>
+               HorizontalAlignment="Right" Margin="0,20,20,0" x:Name="ImageLogo"/>
 
-        <Frame Grid.Row="1" x:Name="frame" NavigationUIVisibility="Hidden" Source="/LoyaltyViewerWpf;component/PageAbout.xaml">
-            <!--
-            <Frame.Effect>
-                <DropShadowEffect Color="#FFC9C9C9" Opacity="0.2"/>
-            </Frame.Effect>
-            -->
-        </Frame>
+        <local:FaderFrame Grid.Row="1" x:Name="frame" NavigationUIVisibility="Hidden" Source="/LoyaltyViewerWpf;component/PageAbout.xaml"/>
 
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>

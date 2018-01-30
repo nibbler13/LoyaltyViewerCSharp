@@ -23,34 +23,66 @@ namespace LoyaltyViewerWpf {
     /// </summary>
     public partial class PagePromoJustNow : Page {
 		public string SubtitleText { get; set; }
-		private TextBlock _textBlockTime;
+		public string NothingToShow { get; set; }
+		private Typeface _typeface;
+		private double _fontSize;
 		private ItemPromoJustNow _promoJustNow;
 
-        public PagePromoJustNow(ItemPromoJustNow promoJustNow, TextBlock textBlockTime) {
+        public PagePromoJustNow(ItemPromoJustNow promoJustNow, Typeface typeface, double fontSize) {
+			Console.WriteLine("PagePromoJustNow: " + DateTime.Now.ToLongTimeString());
+			Console.WriteLine(promoJustNow.ToString());
+			_typeface = typeface;
+			_fontSize = fontSize;
 			_promoJustNow = promoJustNow;
-			_textBlockTime = textBlockTime;
+			SubtitleText = Properties.Resources.PromoJustNowSubtitle;
+			NothingToShow = Properties.Resources.PromoJustNowNothingToShow;
 
 			DataContext = this;
-			SubtitleText = Properties.Resources.PromoJustNowSubtitle;
-            InitializeComponent();
+			InitializeComponent();
 
 			DrawContent();
-			UpdateTextBoxTime();
+		}
+
+		private void DrawContent() {
+			if (_promoJustNow.Departments.Count == 0) {
+				foreach (UIElement element in GridMain.Children)
+					element.Visibility = Visibility.Hidden;
+				LabelNothingToShow.Visibility = Visibility.Visible;
+
+				return;
+			}
+
+			TextBlockSubtitle.FontSize = _fontSize / 2;
+			int gridRow = 1;
+
+			foreach (KeyValuePair<string, ItemDepartment> department in _promoJustNow.Departments) {
+				if (gridRow >= 9)
+					break;
+
+				CreateBorderWithTextBlock(department.Key, gridRow, true);
+				gridRow++;
+
+				foreach (KeyValuePair<string, ItemDoctor> doctor in department.Value.Doctors) {
+					if (gridRow > 9)
+						break;
+
+					CreateBorderWithTextBlock(doctor.Key, gridRow, false, doctor.Value.FreeCells);
+					gridRow++;
+				}
+			}
 
 			Loaded += PagePromoJustNow_Loaded;
-        }
+		}
 
 		private void PagePromoJustNow_Loaded(object sender, RoutedEventArgs e) {
 			DrawTimeLines();
 		}
 
-		private void UpdateTextBoxTime() {
-			_textBlockTime.Text = _promoJustNow.DateTimeUpdated.ToShortTimeString();
-		}
-
 		private void DrawTimeLines() {
 			double linesWidth = GridData.ColumnDefinitions[1].ActualWidth;
-			double linesToDraw = Properties.Settings.Default.PromoJustNowShowIntervalMinutes;
+			double availableWidth = GridData.ActualWidth;
+			double doctorsWidth = GridData.ColumnDefinitions[0].ActualWidth;
+			double linesToDraw = Properties.Settings.Default.PromoJustNowFreeCellsShowIntervalMinutes;
 			double step = linesWidth / linesToDraw;
 			double currentX = 0;
 			double gridRowHeight = GridData.RowDefinitions[0].ActualHeight;
@@ -61,7 +93,7 @@ namespace LoyaltyViewerWpf {
 			//horizontal lines between doctors
 			int rowsUsed = 1;
 			bool previousIsDepartment = false;
-			for (int gridRow = rowsUsed; gridRow < 10; gridRow++) {
+			for (int gridRow = rowsUsed; gridRow < 11; gridRow++) {
 				bool currentIsDoctor = false;
 				bool hasChild = false;
 				SortedDictionary<DateTime, ItemFreeCell> freeCells = null;
@@ -93,18 +125,17 @@ namespace LoyaltyViewerWpf {
 				if (freeCells != null) {
 					foreach (ItemFreeCell freeCell in freeCells.Values) {
 						string cellText = freeCell.Begin.ToShortTimeString();
-						int duration = freeCell.Duration.Minutes;
+						int duration = (int)freeCell.Duration.TotalMinutes;
 
-						double minutesBeforeTheStart = (freeCell.Begin - _promoJustNow.DateTimeUpdated).TotalMinutes;
+						double minutesBeforeTheStart = (int)(freeCell.Begin - _promoJustNow.DateTimeUpdated).TotalMinutes;
 						double cellWidth = step * duration;
-						double cellLeft = linesWidth + (minutesBeforeTheStart * step);
+						double cellLeft = doctorsWidth + (minutesBeforeTheStart * step);
 						double cellTop = gridRow * gridRowHeight + (gridRowHeight - cellHeight) / 2;
 
 						Border cellBorder = CreateBorderWithTextBlock(cellText);
 						cellBorder.Background = WindowMain.BrushFromRGB(Properties.Settings.Default.ColorTitlePromoBackground);
 						(cellBorder.Child as TextBlock).Foreground = WindowMain.BrushFromRGB(Properties.Settings.Default.ColorTitlePromoForeground);
 						(cellBorder.Child as TextBlock).TextAlignment = TextAlignment.Center;
-						//(cellBorder.Child as TextBlock).FontSize = _textBlockTime.FontSize / 1.5;
 						(cellBorder.Child as TextBlock).FontWeight = FontWeights.UltraBold;
 
 						cellBorder.Width = cellWidth;
@@ -113,8 +144,6 @@ namespace LoyaltyViewerWpf {
 						cellBorder.BorderBrush = Brushes.Transparent;
 						Canvas.SetLeft(cellBorder, cellLeft);
 						Canvas.SetTop(cellBorder, cellTop);
-
-						AddDropShadowEffect(cellBorder);
 
 						CanvasMain.Children.Add(cellBorder);
 
@@ -125,14 +154,6 @@ namespace LoyaltyViewerWpf {
 						Canvas.SetLeft(image, cellLeft + cellWidth - cellHeight);
 						Canvas.SetTop(image, cellTop);
 						CanvasMain.Children.Add(image);
-
-						DoubleAnimation da = new DoubleAnimation();
-						da.From = 1;
-						da.To = 0;
-						da.Duration = new Duration(TimeSpan.FromSeconds(1));
-						da.AutoReverse = true;
-						da.RepeatBehavior = RepeatBehavior.Forever;
-						image.BeginAnimation(OpacityProperty, da);
 					}
 				}
 
@@ -142,7 +163,7 @@ namespace LoyaltyViewerWpf {
 				}
 
 				double y = gridRow * gridRowHeight;
-				Line line = CreateLine(0, y, linesWidth * 2, y, 1);
+				Line line = CreateLine(0, y, availableWidth, y, 1);
 				line.Stroke = colorBrushMinuteSection;
 
 				Grid.SetColumnSpan(line, 2);
@@ -158,7 +179,7 @@ namespace LoyaltyViewerWpf {
 			double linesHeight = gridRowHeight * (rowsUsed - 1);
 			DateTime dateTimeCurrent = _promoJustNow.DateTimeUpdated;
 
-			for (int i = 0; i <= linesToDraw; i++) {
+			for (int i = 0; i < linesToDraw; i++) {
 				Line line = CreateLine(currentX, 0, currentX, linesHeight, 1);
 
 				if (dateTimeCurrent.Minute == 0 ||
@@ -170,33 +191,34 @@ namespace LoyaltyViewerWpf {
 					TextBlock textBlock = new TextBlock {
 						Text = sectionTime,
 						Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
-						FontSize = _textBlockTime.FontSize / 1.5
+						FontSize = _fontSize
 					};
 
-					double left = linesWidth + currentX - sectionTimeSize.Width / 2;
+					double left = doctorsWidth + currentX - sectionTimeSize.Width / 2;
 					double top = gridRowHeight - sectionTimeSize.Height;
 
 					//textBox must be inside canvas
-					if (left + sectionTimeSize.Width / 2 < linesWidth * 2) {
+					if (left + sectionTimeSize.Width < availableWidth) {
 						Canvas.SetLeft(textBlock, left);
 						Canvas.SetTop(textBlock, top);
 						CanvasMain.Children.Add(textBlock);
 					}
-				} else
-					line.Stroke = colorBrushMinuteRegular;
+				} else {
+					if (dateTimeCurrent.Minute % 5 != 0)
+						line.Stroke = new SolidColorBrush(Colors.White);
+					else
+						line.Stroke = colorBrushMinuteRegular;
+				}
 
 				Grid.SetColumn(line, 1);
 				Grid.SetRow(line, 1);
 				Grid.SetRowSpan(line, 9);
 				Grid.SetZIndex(line, -1);
 				GridData.Children.Add(line);
-				currentX += step;
 
+				currentX += step;
 				dateTimeCurrent = dateTimeCurrent.AddMinutes(1);
 			}
-
-
-			TextBlockSubtitle.FontSize = _textBlockTime.FontSize / 1.5;
 		}
 
 		private Size MeasureString(string candidate) {
@@ -204,8 +226,8 @@ namespace LoyaltyViewerWpf {
 				candidate,
 				CultureInfo.CurrentCulture,
 				FlowDirection.LeftToRight,
-				new Typeface(_textBlockTime.FontFamily, _textBlockTime.FontStyle, _textBlockTime.FontWeight, _textBlockTime.FontStretch),
-				_textBlockTime.FontSize / 1.5,
+				_typeface,
+				_fontSize,
 				Brushes.Black);
 
 			return new Size(formattedText.Width, formattedText.Height);
@@ -220,32 +242,6 @@ namespace LoyaltyViewerWpf {
 			line.StrokeThickness = thickness;
 
 			return line;
-		}
-
-		private void DrawContent() {
-			if (_promoJustNow.Departments.Count == 0) {
-				//nothing to show
-
-				return;
-			}
-
-			int gridRow = 1;
-
-			foreach (KeyValuePair<string, ItemDepartment> department in _promoJustNow.Departments) {
-				if (gridRow >= 9)
-					break;
-
-				CreateBorderWithTextBlock(department.Key, gridRow, true);
-				gridRow++;
-
-				foreach (KeyValuePair<string, ItemDoctor> doctor in department.Value.Doctors) {
-					if (gridRow > 9)
-						break;
-
-					CreateBorderWithTextBlock(doctor.Key, gridRow, false, doctor.Value.FreeCells);
-					gridRow++;
-				}
-			}
 		}
 
 		private Border CreateBorderWithTextBlock(string value, int gridRow = 0, bool isDepartment = false, SortedDictionary<DateTime, ItemFreeCell> freeCells = null) {
@@ -274,7 +270,6 @@ namespace LoyaltyViewerWpf {
 			};
 
 			if (isDepartment) {
-				AddDropShadowEffect(border);
 				border.Tag = "department";
 			} else {
 				textBlock.Margin = new Thickness(20, 0, 20, 0);
@@ -290,17 +285,6 @@ namespace LoyaltyViewerWpf {
 			}
 
 			return border;
-		}
-
-		private void AddDropShadowEffect(UIElement element) {
-			DropShadowEffect effect = new DropShadowEffect {
-				Color = Color.FromRgb(200, 200, 200),
-				Opacity = 0.2,
-				Direction = 320
-			};
-
-			element.Effect = effect;
-
 		}
     }
 }

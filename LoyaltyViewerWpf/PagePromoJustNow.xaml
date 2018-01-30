@@ -8,16 +8,23 @@
       d:DesignHeight="720" d:DesignWidth="1280"
       Title="PagePromoJustNow">
 
-    <Grid>
+    <Grid x:Name="GridMain">
         <Grid.RowDefinitions>
             <RowDefinition Height="83*"/>
             <RowDefinition Height="17*"/>
         </Grid.RowDefinitions>
 
+        <Label Grid.RowSpan="2" 
+               Content="{Binding NothingToShow}" 
+               VerticalContentAlignment="Center" 
+               HorizontalContentAlignment="Center" 
+               Visibility="Hidden" 
+               x:Name="LabelNothingToShow"/>
+
         <Grid x:Name="GridData" Margin="20">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"/>
@@ -31,14 +38,15 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Canvas Grid.ColumnSpan="2" Grid.RowSpan="10" x:Name="CanvasMain"/>
         </Grid>
+        
+        <Canvas Margin="20" x:Name="CanvasMain"/>
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="20*"/>
-                <ColumnDefinition Width="60*"/>
-                <ColumnDefinition Width="20*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="70*"/>
+                <ColumnDefinition Width="15*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="10" Foreground="LightGray">
                 <TextBlock Text="{Binding SubtitleText}"

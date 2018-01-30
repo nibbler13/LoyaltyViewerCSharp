@@ -47,9 +47,6 @@ namespace LoyaltyViewerWpf {
 			UpdateData();
 		}
 
-
-
-
 		private void UpdateData() {
 			SystemLogging.LogMessageToFile("Обновление данных");
 
@@ -83,117 +80,51 @@ namespace LoyaltyViewerWpf {
 		}
 
 		private void GetPromoJustNowData() {
-			string queryDoctors = Properties.Settings.Default.MisDbSelectQueryPromoJustNowDoctors;
-			string queryBusy = Properties.Settings.Default.MisDbSelectQueryPromoJustNowBusy;
+			DateTime dateTimeNow = DateTime.Now;//GetDateTime("13:00"); //
+			_promoJustNow = new ItemPromoJustNow() { DateTimeUpdated = dateTimeNow };
+
+			string queryPromoJustNow = Properties.Settings.Default.MisDbSelectQueryPromoJustNow;
 			string depnums = Properties.Settings.Default.PromoJustNowDepartments;
+			queryPromoJustNow = queryPromoJustNow.Replace("@depnums", depnums);
 
-			queryDoctors = queryDoctors.Replace("@depnums", depnums);
-			queryBusy = queryBusy.Replace("@depnums", depnums);
-
-			DataTable dataTableDoctors = fBClient.GetDataTable(queryDoctors, new Dictionary<string, string>(), ref errorsCountMisDb);
-			DataTable dataTableBusy = fBClient.GetDataTable(queryBusy, new Dictionary<string, string>(), ref errorsCountMisDb);
-
-			if (dataTableDoctors.Rows.Count == 0)
+			DataTable dataTablePromoJustNow = fBClient.GetDataTable(queryPromoJustNow, new Dictionary<string, string>(), ref errorsCountMisDb);
+			if (dataTablePromoJustNow.Rows.Count == 0) {
+				SystemLogging.LogMessageToFile("GetPromoJustNowData dataTable rows.Cout = 0");
 				return;
+			}
 
-			DateTime dateTimeNow = GetDateTime("13", "00"); //DateTime.Now; //
-			DateTime dateTimeMaxToShow = dateTimeNow.AddMinutes(Properties.Settings.Default.PromoJustNowShowIntervalMinutes);
-			_promoJustNow = new ItemPromoJustNow() {
-				DateTimeUpdated = dateTimeNow
-			};
+			DateTime dateTimeMaxToShow = dateTimeNow.AddMinutes(Properties.Settings.Default.PromoJustNowFreeCellsShowIntervalMinutes);
+			SystemLogging.LogMessageToFile("Total rows: " + dataTablePromoJustNow.Rows.Count);
 
-			SystemLogging.LogMessageToFile("Total doctors: " + dataTableDoctors.Rows.Count);
-
-			foreach (DataRow rowDoctor in dataTableDoctors.Rows) {
+			foreach (DataRow rowFreeCell in dataTablePromoJustNow.Rows) {
 				try {
-					string fullname = rowDoctor["FULLNAME"].ToString();
-					string dcode = rowDoctor["DCODE"].ToString();
-					string depname = rowDoctor["DEPNAME"].ToString();
-					string depnum = rowDoctor["DEPNUM"].ToString();
-					string beghour = rowDoctor["BEGHOUR"].ToString();
-					string begmin = rowDoctor["BEGMIN"].ToString();
-					string endhour = rowDoctor["ENDHOUR"].ToString();
-					string endmin = rowDoctor["ENDMIN"].ToString();
-					string shinterv = rowDoctor["SHINTERV"].ToString();
+					DateTime dateTimeBegin = GetDateTime(rowFreeCell["BTIME"].ToString());
+					DateTime dateTimeEnd = GetDateTime(rowFreeCell["FTIME"].ToString());
 
-					Console.WriteLine("fullname: " + fullname);
-
-					DateTime dateTimeBegin = GetDateTime(beghour, begmin);
-					DateTime dateTimeEnd = GetDateTime(endhour, endmin);
-
-					if (dateTimeBegin >= dateTimeNow ||
-						dateTimeEnd <= dateTimeNow) {
-						SystemLogging.LogMessageToFile("Doctor '" + fullname + "' working interval outside current time");
+					if (dateTimeBegin < dateTimeNow ||
+						dateTimeEnd > dateTimeMaxToShow)
 						continue;
-					}
 
-					ItemDoctor itemDoctor = new ItemDoctor(ClearName(fullname));
-					int.TryParse(shinterv, out int duration);
-					DataRow[] dataTableBusyCurrentDoc = dataTableBusy.Select("DCODE = " + dcode);
-					DateTime dateTimeIntervalStart = dateTimeNow.AddMinutes(Properties.Settings.Default.PromoJustNowTreatStartDelayMinutes);
+					string depname = rowFreeCell["DEPNAME"].ToString();
+					string fullname = ClearName(rowFreeCell["FULLNAME"].ToString());
+
+					ItemFreeCell itemFreeCell = new ItemFreeCell(dateTimeBegin, dateTimeEnd);
 					
-					while (true) {
-						if (dateTimeIntervalStart >= dateTimeEnd ||
-							dateTimeIntervalStart >= dateTimeMaxToShow)
-							break;
-
-						DateTime dateTimeIntervalEnd = dateTimeIntervalStart.AddMinutes(duration);
-
-						if (dateTimeIntervalEnd > dateTimeEnd ||
-							dateTimeIntervalEnd > dateTimeMaxToShow)
-							break;
-
-						bool isBusy = false;
-						foreach (DataRow dataRowBusyCell in dataTableBusyCurrentDoc) {
-							try {
-								string bhour = dataRowBusyCell["BHOUR"].ToString();
-								string bmin = dataRowBusyCell["BMIN"].ToString();
-								string fhour = dataRowBusyCell["FHOUR"].ToString();
-								string fmin = dataRowBusyCell["FMIN"].ToString();
-
-								DateTime busyStart = GetDateTime(bhour, bmin);
-								DateTime busyEnd = GetDateTime(fhour, fmin);
-
-								if (busyStart >= dateTimeIntervalEnd ||
-									busyEnd <= dateTimeIntervalStart)
-									continue;
-
-								isBusy = true;
-								dateTimeIntervalStart = busyEnd;
-
-								break;
-							} catch (Exception excBusy) {
-								SystemLogging.LogMessageToFile(excBusy.Message + Environment.NewLine + excBusy.StackTrace);
-							}
-						}
-
-						if (isBusy)
-							continue;
-
-						ItemFreeCell itemFreeCell = new ItemFreeCell(dateTimeIntervalStart, dateTimeIntervalEnd);
-						itemDoctor.FreeCells.Add(itemFreeCell.Begin, itemFreeCell);
-						dateTimeIntervalStart = dateTimeIntervalEnd;
-					}
-
-					if (itemDoctor.FreeCells.Count == 0) {
-						SystemLogging.LogMessageToFile("Doctor '" + itemDoctor.Name + "' has no free cells");
-						continue;
-					}
-
-					SystemLogging.LogMessageToFile("Doctor '" + itemDoctor.Name + "' free cells count: " + itemDoctor.FreeCells.Count);
-
 					if (!_promoJustNow.Departments.ContainsKey(depname)) {
 						ItemDepartment itemDepartment = new ItemDepartment(depname.ToUpper());
 						_promoJustNow.Departments.Add(depname, itemDepartment);
 					}
 
-					_promoJustNow.Departments[depname].Doctors.Add(itemDoctor.Name, itemDoctor);
+					if (!_promoJustNow.Departments[depname].Doctors.ContainsKey(fullname)) {
+						ItemDoctor itemDoctor = new ItemDoctor(fullname);
+						_promoJustNow.Departments[depname].Doctors.Add(fullname, itemDoctor);
+					}
+
+					_promoJustNow.Departments[depname].Doctors[fullname].FreeCells.Add(dateTimeBegin, itemFreeCell);
 				} catch (Exception excDoc) {
 					SystemLogging.LogMessageToFile(excDoc.Message + Environment.NewLine + excDoc.StackTrace);
 				}
 			}
-
-			Console.WriteLine();
 		}
 
 		private string ClearName(string value) {
@@ -209,11 +140,8 @@ namespace LoyaltyViewerWpf {
 			return parts[0] + " " + parts[1] + " " + parts[2];
 		}
 
-		private DateTime GetDateTime(string hour, string minute) {
-			DateTime today = DateTime.Now;
-			int.TryParse(hour, out int intHour);
-			int.TryParse(minute, out int intMinute);
-			return new DateTime(today.Year, today.Month, today.Day, intHour, intMinute, 0);
+		private DateTime GetDateTime(string time) {
+			return DateTime.ParseExact(time, "H:mm", null, System.Globalization.DateTimeStyles.None);
 		}
 
 		public ItemPromoJustNow GetPromoJustNow() {
