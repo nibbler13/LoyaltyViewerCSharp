@@ -58,6 +58,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ControlsFactory.cs" />
     <Compile Include="FaderFrame.cs" />
     <Compile Include="ItemPromoJustNow.cs" />
     <Compile Include="PagePromoJustNow.xaml.cs">
@@ -102,7 +103,6 @@
     <Compile Include="SnowInfo.cs" />
     <Compile Include="SystemDataService.cs" />
     <Compile Include="SystemFirebirdClient.cs" />
-    <Compile Include="IndicatorLabel.cs" />
     <Compile Include="SystemLogging.cs" />
     <Compile Include="SystemMail.cs" />
     <Compile Include="WindowMain.xaml.cs">

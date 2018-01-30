@@ -60,27 +60,27 @@ namespace LoyaltyViewerWpf {
 		public int TotalVotes { get; set; }
 		public string Description { get; set; }
 
-		public PageMarks(WindowMain.CurrentStates currentState, ItemDataResult dataResult) {
+		public PageMarks(WindowMain.AvailablePages currentState, ItemDataResult dataResult) {
 			InitializeComponent();
 
-			if (currentState == WindowMain.CurrentStates.DoctorsMarks) {
+			if (currentState == WindowMain.AvailablePages.DoctorsMarks) {
 				_percentMark5 = dataResult.PercentLove;
 				_percentMark4 = dataResult.PercentHappy;
 				_percentMark3 = dataResult.PercentNeutral;
 				_percentMark2 = dataResult.PercentSad;
 				_percentMark1 = dataResult.PercentAngry;
-			} else if (currentState == WindowMain.CurrentStates.ClinicRecommendations) {
+			} else if (currentState == WindowMain.AvailablePages.ClinicRecommendations) {
 				_percentMark4 = dataResult.PercentLike;
 				_percentMark3 = dataResult.PercentDontKnow;
 				_percentMark2 = dataResult.PercentDislike;
-				imageMark4.Source = GetResourceImage("icon_like");
-				imageMark3.Source = GetResourceImage("icon_dont_know");
-				imageMark2.Source = GetResourceImage("icon_dislike");
+				imageMark4.Source = ControlsFactory.GetResourceImage("icon_like");
+				imageMark3.Source = ControlsFactory.GetResourceImage("icon_dont_know");
+				imageMark2.Source = ControlsFactory.GetResourceImage("icon_dislike");
 				BrushConverter converter = new BrushConverter();
 				rectangleMark4.Fill = (Brush)converter.ConvertFromString("#FF4e9b44");
 				rectangleMark3.Fill = (Brush)converter.ConvertFromString("#FF2d3d3f");
 				rectangleMark2.Fill = (Brush)converter.ConvertFromString("#FF00a9dc");
-				imageDescription.Source = GetResourceImage("man");
+				imageDescription.Source = ControlsFactory.GetResourceImage("man");
 
 				foreach (UIElement element in gridMarks.Children) {
 					int row = Grid.GetRow(element);
@@ -100,14 +100,6 @@ namespace LoyaltyViewerWpf {
 
 			DataContext = this;
 			Loaded += PageDoctorsMarks_Loaded;
-		}
-
-		public static BitmapImage GetResourceImage(string name) {
-			BitmapImage image = new BitmapImage();
-			image.BeginInit();
-			image.UriSource = new Uri("pack://application:,,,/LoyaltyViewerWpf;component/Resources/" + name + ".png");
-			image.EndInit();
-			return image;
 		}
 
 		private void PageDoctorsMarks_Loaded(object sender, RoutedEventArgs e) {

@@ -23,7 +23,7 @@ namespace LoyaltyViewerWpf {
 			RecommendationYesterday
 		};
 
-		private ItemPromoJustNow _promoJustNow = new ItemPromoJustNow();
+		private ItemPromoJustNow promoJustNow = new ItemPromoJustNow();
 		
 		private SystemFirebirdClient fBClient;
 
@@ -81,7 +81,7 @@ namespace LoyaltyViewerWpf {
 
 		private void GetPromoJustNowData() {
 			DateTime dateTimeNow = DateTime.Now;//GetDateTime("13:00"); //
-			_promoJustNow = new ItemPromoJustNow() { DateTimeUpdated = dateTimeNow };
+			promoJustNow = new ItemPromoJustNow() { DateTimeUpdated = dateTimeNow };
 
 			string queryPromoJustNow = Properties.Settings.Default.MisDbSelectQueryPromoJustNow;
 			string depnums = Properties.Settings.Default.PromoJustNowDepartments;
@@ -110,17 +110,20 @@ namespace LoyaltyViewerWpf {
 
 					ItemFreeCell itemFreeCell = new ItemFreeCell(dateTimeBegin, dateTimeEnd);
 					
-					if (!_promoJustNow.Departments.ContainsKey(depname)) {
+					if (!promoJustNow.Departments.ContainsKey(depname)) {
 						ItemDepartment itemDepartment = new ItemDepartment(depname.ToUpper());
-						_promoJustNow.Departments.Add(depname, itemDepartment);
+						promoJustNow.Departments.Add(depname, itemDepartment);
 					}
 
-					if (!_promoJustNow.Departments[depname].Doctors.ContainsKey(fullname)) {
+					if (!promoJustNow.Departments[depname].Doctors.ContainsKey(fullname)) {
 						ItemDoctor itemDoctor = new ItemDoctor(fullname);
-						_promoJustNow.Departments[depname].Doctors.Add(fullname, itemDoctor);
+						promoJustNow.Departments[depname].Doctors.Add(fullname, itemDoctor);
 					}
 
-					_promoJustNow.Departments[depname].Doctors[fullname].FreeCells.Add(dateTimeBegin, itemFreeCell);
+					if (promoJustNow.Departments[depname].Doctors[fullname].FreeCells.ContainsKey(dateTimeBegin))
+						continue;
+
+					promoJustNow.Departments[depname].Doctors[fullname].FreeCells.Add(dateTimeBegin, itemFreeCell);
 				} catch (Exception excDoc) {
 					SystemLogging.LogMessageToFile(excDoc.Message + Environment.NewLine + excDoc.StackTrace);
 				}
@@ -145,7 +148,7 @@ namespace LoyaltyViewerWpf {
 		}
 
 		public ItemPromoJustNow GetPromoJustNow() {
-			return _promoJustNow;
+			return promoJustNow;
 		}
 
 		private void GetQualityData(Types type) {

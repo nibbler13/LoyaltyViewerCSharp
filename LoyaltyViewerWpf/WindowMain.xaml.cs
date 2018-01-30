@@ -26,28 +26,29 @@ namespace LoyaltyViewerWpf {
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public enum CurrentStates { About, ClinicRecommendations, DoctorsMarks, PromoJustNow };
+		public enum AvailablePages { About, ClinicRecommendations, DoctorsMarks, PromoJustNow };
 
 		public double FontSizeMain { get; set; }
 		public double FontSizeHeader { get; set; }
 		public FontFamily FontFamilyMain { get; set; }
 		public Brush ForegroundColorMain {get; set; }
-		private CurrentStates currentState = CurrentStates.About;
+		private AvailablePages previousPage = AvailablePages.About;
 		private SystemDataService dataService = new SystemDataService();
 
-		private string _titleText;
+		private string titleText;
 		public string TitleText {
 			get {
-				return _titleText;
+				return titleText;
 			} set {
-				if (value != _titleText) {
-					_titleText = value;
+				if (value != titleText) {
+					titleText = value;
 					NotifyPropertyChanged();
 				}
 			}
 		}
 
 		public string AboutDeveloper { get; set; }
+		private DispatcherTimer dispatcherTimer;
 
 
 		public WindowMain() {
@@ -64,28 +65,21 @@ namespace LoyaltyViewerWpf {
 			FontSizeMain = SystemParameters.PrimaryScreenWidth / 40;
 			FontSizeHeader = FontSizeMain * 1.5;
 			FontFamilyMain = new FontFamily(Properties.Resources.FontFamilyMain);
-			ForegroundColorMain = BrushFromRGB(Properties.Settings.Default.ColorFontMain);
+			ForegroundColorMain = ControlsFactory.BrushFromRGB(Properties.Settings.Default.ColorFontMain);
 
 			TitleText = Properties.Resources.WindowMainTitleAbout;
 			SetupLabelTitle(false);
 
 			AboutDeveloper = Properties.Resources.AboutDeveloper;
 			TextBlockAboutDeveloper.FontSize = FontSizeMain / 2;
-			TextBlockAboutDeveloper.Foreground = BrushFromRGB(Properties.Settings.Default.ColorFontAboutDeveloper);
-			//if (Properties.Settings.Default.ShowPromoJustNow &&
-			//	!Properties.Settings.Default.ShowLoyaltyInfo) {
-			//	SetupLabelTitle(true);
-			//	frame.Navigate(new PagePromoJustNow(dataService.GetPromoJustNow(), new Typeface(FontFamilyMain, FontStyle, FontWeight, FontStretch), FontSizeMain / 2));
-			//} else {
-				DispatcherTimer dispatcherTimer = new DispatcherTimer {
-					Interval = TimeSpan.FromSeconds(Properties.Settings.Default.PageChangingPeriodInSeconds)
-				};
+			TextBlockAboutDeveloper.Foreground = ControlsFactory.BrushFromRGB(Properties.Settings.Default.ColorFontAboutDeveloper);
 
-				dispatcherTimer.Tick += DispatcherTimer_Tick;
-				dispatcherTimer.Start();
-			//}
+			dispatcherTimer = new DispatcherTimer {
+				Interval = TimeSpan.FromSeconds(Properties.Settings.Default.PageChangingPeriodInSeconds)
+			};
 
-
+			dispatcherTimer.Tick += DispatcherTimer_Tick;
+			dispatcherTimer.Start();
 
 			KeyDown += WindowMain_KeyDown;
 
@@ -99,8 +93,8 @@ namespace LoyaltyViewerWpf {
 			ImageLogo.Visibility = isPromoJustNow ? Visibility.Hidden : Visibility.Visible;
 			WrapPanelCurrentTime.Visibility = isPromoJustNow ? Visibility.Visible : Visibility.Hidden;
 			Brush labelTitleForeground = isPromoJustNow ?
-				BrushFromRGB(Properties.Settings.Default.ColorTitlePromoBackground) :
-				BrushFromRGB(Properties.Settings.Default.ColorFontMain);
+				ControlsFactory.BrushFromRGB(Properties.Settings.Default.ColorTitlePromoBackground) :
+				ControlsFactory.BrushFromRGB(Properties.Settings.Default.ColorFontMain);
 			LabelTitle.Margin = isPromoJustNow ? new Thickness(0) : new Thickness(20, 20, 0, 0);
 			LabelTitle.HorizontalContentAlignment = isPromoJustNow ? HorizontalAlignment.Center : HorizontalAlignment.Left;
 			LabelTitle.VerticalContentAlignment = isPromoJustNow ? VerticalAlignment.Center : VerticalAlignment.Top;
@@ -129,7 +123,7 @@ namespace LoyaltyViewerWpf {
 			}
 
 			LabelTitle.Foreground = isPromoJustNow ? 
-				BrushFromRGB(Properties.Settings.Default.ColorTitlePromoForeground) : 
+				ControlsFactory.BrushFromRGB(Properties.Settings.Default.ColorTitlePromoForeground) : 
 				ForegroundColorMain;
 			LabelTitle.Background = solidColorBrushBackground;
 			solidColorBrushBackground.BeginAnimation(SolidColorBrush.ColorProperty, colorAnimation);
@@ -141,7 +135,7 @@ namespace LoyaltyViewerWpf {
 			int currentMonth = DateTime.Now.Month;
 			if ((currentMonth == 12 && currentDay >= 10) ||
 				(currentMonth == 1 && currentDay <= 9)) {
-				ImageLogo.Source = PageMarks.GetResourceImage("PicChristmasTree");
+				ImageLogo.Source = ControlsFactory.GetResourceImage("PicChristmasTree");
 				canvasSnowfall.Visibility = Visibility.Visible;
 				List<string> snows = new List<string>();
 
@@ -153,20 +147,21 @@ namespace LoyaltyViewerWpf {
 			}
 		}
 
-		public static SolidColorBrush BrushFromRGB(System.Drawing.Color color) {
-			return new SolidColorBrush(Color.FromArgb(color.A, color.R, color.G, color.B));
+
+
+		private async Task PutTaskDelay() {
+			await Task.Delay(TimeSpan.FromSeconds(Properties.Settings.Default.PageChangingPeriodInSeconds));
 		}
 
 
 
-		private void DispatcherTimer_Tick(object sender, EventArgs e) {
-			Console.WriteLine("DispatcherTimer_Tick: " + DateTime.Now.ToLongTimeString());
+		private async void DispatcherTimer_Tick(object sender, EventArgs e) {
 			Page navigateTo;
 			ItemDataResult dataResult;
 
-			switch (currentState) {
-				case CurrentStates.About:
-					currentState = CurrentStates.ClinicRecommendations;
+			switch (previousPage) {
+				case AvailablePages.About:
+					previousPage = AvailablePages.ClinicRecommendations;
 					dataResult = dataService.GetRecommendationResult();
 
 					if (!Properties.Settings.Default.ShowLoyaltyInfo || dataResult.Total == 0) {
@@ -174,12 +169,12 @@ namespace LoyaltyViewerWpf {
 						return;
 					}
 
-					navigateTo = new PageMarks(currentState, dataResult);
+					navigateTo = new PageMarks(previousPage, dataResult);
 					TitleText = Properties.Resources.WindowMainTitleClinicRecommendations;
 
 					break;
-				case CurrentStates.ClinicRecommendations:
-					currentState = CurrentStates.DoctorsMarks;
+				case AvailablePages.ClinicRecommendations:
+					previousPage = AvailablePages.DoctorsMarks;
 
 					dataResult = dataService.GetQualityResult();
 
@@ -188,12 +183,12 @@ namespace LoyaltyViewerWpf {
 						return;
 					}
 
-					navigateTo = new PageMarks(currentState, dataResult);
+					navigateTo = new PageMarks(previousPage, dataResult);
 					TitleText = Properties.Resources.WindowMainTitleDoctorsMarks;
 
 					break;
-				case CurrentStates.DoctorsMarks:
-					currentState = CurrentStates.PromoJustNow;
+				case AvailablePages.DoctorsMarks:
+					previousPage = AvailablePages.PromoJustNow;
 
 					ItemPromoJustNow promoJustNowLastUpdated = dataService.GetPromoJustNow();
 
@@ -203,84 +198,50 @@ namespace LoyaltyViewerWpf {
 						return;
 					}
 
-					Typeface typeface = new Typeface(FontFamilyMain, FontStyle, FontWeight, FontStretch);
 					SetupLabelTitle(true);
 
-					//ItemPromoJustNow promoJustNowToShow = new ItemPromoJustNow {
-					//	DateTimeUpdated = promoJustNowLastUpdated.DateTimeUpdated
-					//};
+					ItemPromoJustNow promoJustNowToShow = new ItemPromoJustNow {
+						DateTimeUpdated = promoJustNowLastUpdated.DateTimeUpdated
+					};
+					
+					dispatcherTimer.Stop();
+					int gridRow = 1;
 
-					//(sender as DispatcherTimer).Stop();
-					//Task.Run(() => {
-					//	int gridRow = 1;
+					foreach (KeyValuePair<string, ItemDepartment> department in promoJustNowLastUpdated.Departments) {
+						if (gridRow >= 9) {
+							NavigateToPromoJustNow(ref promoJustNowToShow, promoJustNowLastUpdated.DateTimeUpdated, ref gridRow);
+							await PutTaskDelay();
+						}
 
-					//	foreach (KeyValuePair<string, ItemDepartment> department in promoJustNowLastUpdated.Departments) {
-					//		if (gridRow >= 9) {
-					//			Application.Current.Dispatcher.Invoke(new Action(() => {
-					//				PagePromoJustNow pagePromoJustNow = new PagePromoJustNow(promoJustNowToShow, typeface, FontSizeMain) {
-					//					FontFamily = FontFamily,
-					//					FontSize = FontSize,
-					//					Foreground = Foreground
-					//				};
+						gridRow++;
 
-					//				frame.Navigate(pagePromoJustNow);
-					//			}));
-								
-					//			promoJustNowToShow = new ItemPromoJustNow {
-					//				DateTimeUpdated = promoJustNowLastUpdated.DateTimeUpdated
-					//			};
+						foreach (KeyValuePair<string, ItemDoctor> doctor in department.Value.Doctors) {
+							if (gridRow > 9) {
+								NavigateToPromoJustNow(ref promoJustNowToShow, promoJustNowLastUpdated.DateTimeUpdated, ref gridRow);
+								await PutTaskDelay();
+							}
 
-					//			gridRow = 1;
-					//			Thread.Sleep(TimeSpan.FromSeconds(Properties.Settings.Default.PageChangingPeriodInSeconds));
-					//			Console.WriteLine("departments >= 9");
-					//		}
+							if (!promoJustNowToShow.Departments.ContainsKey(department.Key))
+								promoJustNowToShow.Departments.Add(department.Key, new ItemDepartment(department.Key));
 
-					//		gridRow++;
+							promoJustNowToShow.Departments[department.Key].Doctors.Add(doctor.Key, doctor.Value);
 
-					//		foreach (KeyValuePair<string, ItemDoctor> doctor in department.Value.Doctors) {
-					//			if (gridRow > 9) {
-					//				Application.Current.Dispatcher.Invoke(new Action(() => {
-					//					PagePromoJustNow pagePromoJustNow = new PagePromoJustNow(promoJustNowToShow, typeface, FontSizeMain) {
-					//						FontFamily = FontFamily,
-					//						FontSize = FontSize,
-					//						Foreground = Foreground
-					//					};
+							gridRow++;
+						}
+					}
+					
+					dispatcherTimer.Start();
 
-					//					frame.Navigate(pagePromoJustNow);
-					//				}));
+					if (promoJustNowToShow.Departments.Count == 0) {
+						DispatcherTimer_Tick(sender, e);
+						return;
+					}
 
-					//				promoJustNowToShow = new ItemPromoJustNow {
-					//					DateTimeUpdated = promoJustNowLastUpdated.DateTimeUpdated
-					//				};
-
-					//				gridRow = 1;
-					//				Thread.Sleep(TimeSpan.FromSeconds(Properties.Settings.Default.PageChangingPeriodInSeconds));
-					//				Console.WriteLine("doctor > 9");
-					//			}
-
-
-					//			if (!promoJustNowToShow.Departments.ContainsKey(department.Key))
-					//				promoJustNowToShow.Departments.Add(department.Key, new ItemDepartment(department.Key));
-					//			promoJustNowToShow.Departments[department.Key].Doctors.Add(doctor.Key, doctor.Value);
-
-					//			gridRow++;
-					//		}
-
-					//		//(sender as DispatcherTimer).Start();
-					//	}
-					//});
-
-
-					//if (promoJustNowToShow.Departments.Count == 0) {
-					//	DispatcherTimer_Tick(sender, e);
-					//	return;
-					//}
-
-					navigateTo = new PagePromoJustNow(promoJustNowLastUpdated, typeface, FontSizeMain);
+					navigateTo = new PagePromoJustNow(promoJustNowToShow);
 
 					break;
-				case CurrentStates.PromoJustNow:
-					currentState = CurrentStates.About;
+				case AvailablePages.PromoJustNow:
+					previousPage = AvailablePages.About;
 
 					navigateTo = new PageAbout();
 					SetupLabelTitle(false);
@@ -291,11 +252,22 @@ namespace LoyaltyViewerWpf {
 					return;
 			}
 
-			navigateTo.FontFamily = FontFamily;
-			navigateTo.FontSize = FontSize;
-			navigateTo.Foreground = Foreground;
+			FrameNavigateTo(navigateTo);
+		}
 
-			frame.Navigate(navigateTo);
+		private void NavigateToPromoJustNow(ref ItemPromoJustNow promoJustNowToShow, DateTime dateTimeUpdated, ref int gridRow) {
+			PagePromoJustNow pagePromoJustNow = new PagePromoJustNow(promoJustNowToShow);
+			FrameNavigateTo(pagePromoJustNow);
+			promoJustNowToShow = new ItemPromoJustNow { DateTimeUpdated = dateTimeUpdated };
+			gridRow = 1;
+		}
+
+		private void FrameNavigateTo(Page page) {
+			page.FontFamily = FontFamily;
+			page.FontSize = FontSize;
+			page.Foreground = Foreground;
+
+			frame.Navigate(page);
 		}
 
 

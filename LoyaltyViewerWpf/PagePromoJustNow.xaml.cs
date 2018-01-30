@@ -24,18 +24,28 @@ namespace LoyaltyViewerWpf {
     public partial class PagePromoJustNow : Page {
 		public string SubtitleText { get; set; }
 		public string NothingToShow { get; set; }
-		private Typeface _typeface;
-		private double _fontSize;
-		private ItemPromoJustNow _promoJustNow;
+		private ItemPromoJustNow promoJustNow;
+		private SolidColorBrush colorBrushMinuteRegular;
+		private SolidColorBrush colorBrushMinuteSection;
+		private SolidColorBrush colorBrushDepartmentBackground;
+		private SolidColorBrush colorBrushTreatmentBackground;
+		private SolidColorBrush colorBrushTreatmentForeground;
+		private SolidColorBrush colorTimeStampForeground;
+		private int intervalToShow;
 
-        public PagePromoJustNow(ItemPromoJustNow promoJustNow, Typeface typeface, double fontSize) {
-			Console.WriteLine("PagePromoJustNow: " + DateTime.Now.ToLongTimeString());
-			Console.WriteLine(promoJustNow.ToString());
-			_typeface = typeface;
-			_fontSize = fontSize;
-			_promoJustNow = promoJustNow;
+		public enum CellType { Department, Doctor, Treatment }
+
+		public PagePromoJustNow(ItemPromoJustNow promoJustNow) {
+			this.promoJustNow = promoJustNow;
 			SubtitleText = Properties.Resources.PromoJustNowSubtitle;
 			NothingToShow = Properties.Resources.PromoJustNowNothingToShow;
+			colorBrushMinuteRegular = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+			colorBrushMinuteSection = new SolidColorBrush(Color.FromRgb(220, 220, 220));
+			colorBrushDepartmentBackground = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+			colorBrushTreatmentBackground = ControlsFactory.BrushFromRGB(Properties.Settings.Default.ColorTitlePromoBackground);
+			colorBrushTreatmentForeground = ControlsFactory.BrushFromRGB(Properties.Settings.Default.ColorTitlePromoForeground);
+			colorTimeStampForeground = new SolidColorBrush(Color.FromRgb(200, 200, 200));
+			intervalToShow = Properties.Settings.Default.PromoJustNowFreeCellsShowIntervalMinutes;
 
 			DataContext = this;
 			InitializeComponent();
@@ -44,29 +54,28 @@ namespace LoyaltyViewerWpf {
 		}
 
 		private void DrawContent() {
-			if (_promoJustNow.Departments.Count == 0) {
+			if (promoJustNow.Departments.Count == 0) {
 				foreach (UIElement element in GridMain.Children)
 					element.Visibility = Visibility.Hidden;
+
 				LabelNothingToShow.Visibility = Visibility.Visible;
 
 				return;
 			}
 
-			TextBlockSubtitle.FontSize = _fontSize / 2;
 			int gridRow = 1;
-
-			foreach (KeyValuePair<string, ItemDepartment> department in _promoJustNow.Departments) {
+			foreach (KeyValuePair<string, ItemDepartment> department in promoJustNow.Departments) {
 				if (gridRow >= 9)
 					break;
 
-				CreateBorderWithTextBlock(department.Key, gridRow, true);
+				CreateBorderWithTextBlock(CellType.Department, department.Key, gridRow, "department");
 				gridRow++;
 
 				foreach (KeyValuePair<string, ItemDoctor> doctor in department.Value.Doctors) {
 					if (gridRow > 9)
 						break;
 
-					CreateBorderWithTextBlock(doctor.Key, gridRow, false, doctor.Value.FreeCells);
+					CreateBorderWithTextBlock(CellType.Doctor, doctor.Key, gridRow, doctor.Value);
 					gridRow++;
 				}
 			}
@@ -75,95 +84,88 @@ namespace LoyaltyViewerWpf {
 		}
 
 		private void PagePromoJustNow_Loaded(object sender, RoutedEventArgs e) {
-			DrawTimeLines();
+			TextBlockSubtitle.FontSize = FontSize / 2;
+			DrawTimeLinesAndCells();
 		}
 
-		private void DrawTimeLines() {
-			double linesWidth = GridData.ColumnDefinitions[1].ActualWidth;
-			double availableWidth = GridData.ActualWidth;
+		private void DrawTimeLinesAndCells() {
+			double linesWidthTotal = GridData.ColumnDefinitions[1].ActualWidth;
 			double doctorsWidth = GridData.ColumnDefinitions[0].ActualWidth;
-			double linesToDraw = Properties.Settings.Default.PromoJustNowFreeCellsShowIntervalMinutes;
-			double step = linesWidth / linesToDraw;
-			double currentX = 0;
 			double gridRowHeight = GridData.RowDefinitions[0].ActualHeight;
+			double availableWidth = GridData.ActualWidth;
+			double minuteStepWidth = linesWidthTotal / intervalToShow;
 			double cellHeight = gridRowHeight * 0.8;
-			SolidColorBrush colorBrushMinuteRegular = new SolidColorBrush(Color.FromRgb(240, 240, 240));
-			SolidColorBrush colorBrushMinuteSection = new SolidColorBrush(Color.FromRgb(220, 220, 220));
+			double currentX = 0;
+			Typeface typeface = new Typeface(FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
 
 			//horizontal lines between doctors
 			int rowsUsed = 1;
-			bool previousIsDepartment = false;
-			for (int gridRow = rowsUsed; gridRow < 11; gridRow++) {
-				bool currentIsDoctor = false;
-				bool hasChild = false;
-				SortedDictionary<DateTime, ItemFreeCell> freeCells = null;
+			bool isPreviousLineADepartment = false;
+			for (int currentRow = rowsUsed; currentRow < 11; currentRow++) {
+				bool isCurrentADoctor = false;
+				bool isCellHasChilds = false;
+				ItemDoctor freeCells = null;
 
 				foreach (UIElement element in GridData.Children) {
-					if (Grid.GetRow(element) == gridRow &&
-						Grid.GetColumn(element) == 0) {
+					if (Grid.GetRow(element) == currentRow && Grid.GetColumn(element) == 0) {
 						rowsUsed++;
-						hasChild = true;
+						isCellHasChilds = true;
 
 						if (element is Border) {
 							object tag = (element as Border).Tag;
 							if (tag is string) {
-								previousIsDepartment = true;
+								isPreviousLineADepartment = true;
 								break;
 							}
 
-							freeCells = tag as SortedDictionary<DateTime, ItemFreeCell>;
+							freeCells = tag as ItemDoctor;
 						}
 						
-						currentIsDoctor = true;
+						isCurrentADoctor = true;
 						break;
 					}
 				}
 
-				if (!currentIsDoctor && hasChild)
+				if (!isCurrentADoctor && isCellHasChilds)
 					continue;
 
 				if (freeCells != null) {
-					foreach (ItemFreeCell freeCell in freeCells.Values) {
+					foreach (ItemFreeCell freeCell in freeCells.FreeCells.Values) {
 						string cellText = freeCell.Begin.ToShortTimeString();
 						int duration = (int)freeCell.Duration.TotalMinutes;
 
-						double minutesBeforeTheStart = (int)(freeCell.Begin - _promoJustNow.DateTimeUpdated).TotalMinutes;
-						double cellWidth = step * duration;
-						double cellLeft = doctorsWidth + (minutesBeforeTheStart * step);
-						double cellTop = gridRow * gridRowHeight + (gridRowHeight - cellHeight) / 2;
+						double minutesBeforeTheStart = (int)(freeCell.Begin - promoJustNow.DateTimeUpdated).TotalMinutes;
+						double cellWidth = minuteStepWidth * duration;
+						double cellLeft = doctorsWidth + (minutesBeforeTheStart * minuteStepWidth);
+						double cellTop = currentRow * gridRowHeight + (gridRowHeight - cellHeight) / 2;
 
-						Border cellBorder = CreateBorderWithTextBlock(cellText);
-						cellBorder.Background = WindowMain.BrushFromRGB(Properties.Settings.Default.ColorTitlePromoBackground);
-						(cellBorder.Child as TextBlock).Foreground = WindowMain.BrushFromRGB(Properties.Settings.Default.ColorTitlePromoForeground);
-						(cellBorder.Child as TextBlock).TextAlignment = TextAlignment.Center;
-						(cellBorder.Child as TextBlock).FontWeight = FontWeights.UltraBold;
+						Border cellBorder = CreateBorderWithTextBlock(CellType.Treatment, cellText);
 
 						cellBorder.Width = cellWidth;
 						cellBorder.Height = cellHeight;
 						cellBorder.BorderThickness = new Thickness(2);
 						cellBorder.BorderBrush = Brushes.Transparent;
+
 						Canvas.SetLeft(cellBorder, cellLeft);
 						Canvas.SetTop(cellBorder, cellTop);
-
+						Canvas.SetZIndex(cellBorder, 1);
 						CanvasMain.Children.Add(cellBorder);
 
-						Image image = new Image();
-						image.Source = PageMarks.GetResourceImage("Sale-30");
-						image.Width = cellHeight;
-						image.Height = cellHeight;
+						Image image = ControlsFactory.CreateImage("Sale-30", cellHeight, cellHeight);
 						Canvas.SetLeft(image, cellLeft + cellWidth - cellHeight);
 						Canvas.SetTop(image, cellTop);
+						Canvas.SetZIndex(image, 2);
 						CanvasMain.Children.Add(image);
 					}
 				}
 
-				if (previousIsDepartment) {
-					previousIsDepartment = false;
+				if (isPreviousLineADepartment) {
+					isPreviousLineADepartment = false;
 					continue;
 				}
 
-				double y = gridRow * gridRowHeight;
-				Line line = CreateLine(0, y, availableWidth, y, 1);
+				double y = currentRow * gridRowHeight;
+				Line line = ControlsFactory.CreateLine(0, y, availableWidth, y, 1);
 				line.Stroke = colorBrushMinuteSection;
 
 				Grid.SetColumnSpan(line, 2);
@@ -171,28 +173,33 @@ namespace LoyaltyViewerWpf {
 				GridData.Children.Add(line);
 
 				//last line reached
-				if (!hasChild)
+				if (!isCellHasChilds)
 					break;
 			}
 
 			//vertical timelines
 			double linesHeight = gridRowHeight * (rowsUsed - 1);
-			DateTime dateTimeCurrent = _promoJustNow.DateTimeUpdated;
+			DateTime dateTimeCurrent = promoJustNow.DateTimeUpdated;
 
-			for (int i = 0; i < linesToDraw; i++) {
-				Line line = CreateLine(currentX, 0, currentX, linesHeight, 1);
+			for (int i = 0; i < intervalToShow; i++) {
+				Line line = ControlsFactory.CreateLine(currentX, 0, currentX, linesHeight, 1);
 
 				if (dateTimeCurrent.Minute == 0 ||
 					dateTimeCurrent.Minute == 30) {
 					line.Stroke = colorBrushMinuteSection;
 
 					string sectionTime = dateTimeCurrent.ToShortTimeString();
-					Size sectionTimeSize = MeasureString(sectionTime);
-					TextBlock textBlock = new TextBlock {
-						Text = sectionTime,
-						Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
-						FontSize = _fontSize
-					};
+					Size sectionTimeSize = ControlsFactory.MeasureString(sectionTime, typeface, FontSize / 1.5);
+
+					TextBlock textBlock = ControlsFactory.CreateTextBlock(
+						sectionTime, 
+						HorizontalAlignment.Center, 
+						VerticalAlignment.Center, 
+						TextAlignment.Center, 
+						new Thickness(0), 
+						FontWeights.Normal, 
+						colorTimeStampForeground);
+					textBlock.FontSize = FontSize / 1.5;
 
 					double left = doctorsWidth + currentX - sectionTimeSize.Width / 2;
 					double top = gridRowHeight - sectionTimeSize.Height;
@@ -216,69 +223,53 @@ namespace LoyaltyViewerWpf {
 				Grid.SetZIndex(line, -1);
 				GridData.Children.Add(line);
 
-				currentX += step;
+				currentX += minuteStepWidth;
 				dateTimeCurrent = dateTimeCurrent.AddMinutes(1);
 			}
 		}
 
-		private Size MeasureString(string candidate) {
-			var formattedText = new FormattedText(
-				candidate,
-				CultureInfo.CurrentCulture,
-				FlowDirection.LeftToRight,
-				_typeface,
-				_fontSize,
-				Brushes.Black);
-
-			return new Size(formattedText.Width, formattedText.Height);
-		}
-
-		private Line CreateLine(double x1, double y1, double x2, double y2, int thickness) {
-			Line line = new Line();
-			line.X1 = x1;
-			line.Y1 = y1;
-			line.X2 = x2;
-			line.Y2 = y2;
-			line.StrokeThickness = thickness;
-
-			return line;
-		}
-
-		private Border CreateBorderWithTextBlock(string value, int gridRow = 0, bool isDepartment = false, SortedDictionary<DateTime, ItemFreeCell> freeCells = null) {
-			SolidColorBrush background = Brushes.Transparent;
-			TextAlignment textAlignment = TextAlignment.Left;
-			FontWeight fontWeight = FontWeights.Normal;
+		private Border CreateBorderWithTextBlock(CellType cellType, string text, int gridRow = -1, object tag = null) {
+			SolidColorBrush background;
+			Brush foreground = Foreground;
+			TextAlignment textAlignment = TextAlignment.Center;
+			FontWeight fontWeight = FontWeights.UltraBold;
+			Thickness margin = new Thickness(0);
+			VerticalAlignment verticalAlignment = VerticalAlignment.Center;
+			HorizontalAlignment horizontalAlignment = HorizontalAlignment.Stretch;
 			int columnSpan = 1;
 
-			if (isDepartment) {
-				background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
-				textAlignment = TextAlignment.Center;
-				fontWeight = FontWeights.UltraBold;
-				columnSpan = 2;
+
+			switch (cellType) {
+				case CellType.Department:
+					background = colorBrushDepartmentBackground;
+					columnSpan = 2;
+					break;
+				case CellType.Doctor:
+					background = Brushes.Transparent;
+					textAlignment = TextAlignment.Left;
+					fontWeight = FontWeights.Normal;
+					margin = new Thickness(20, 0, 20, 0);
+					break;
+				case CellType.Treatment:
+					background = colorBrushTreatmentBackground;
+					foreground = colorBrushTreatmentForeground;
+					break;
+				default:
+					return null;
 			}
+			
+			TextBlock textBlock = ControlsFactory.CreateTextBlock(
+				text, 
+				horizontalAlignment, 
+				verticalAlignment, 
+				textAlignment, 
+				margin, 
+				fontWeight, 
+				foreground);
 
-			Border border = new Border {
-				Background = background
-			};
+			Border border = ControlsFactory.CreateBorder(background, tag, textBlock);
 
-			TextBlock textBlock = new TextBlock {
-				Text = value,
-				VerticalAlignment = VerticalAlignment.Center,
-				HorizontalAlignment = HorizontalAlignment.Stretch,
-				TextAlignment = textAlignment,
-				FontWeight = fontWeight
-			};
-
-			if (isDepartment) {
-				border.Tag = "department";
-			} else {
-				textBlock.Margin = new Thickness(20, 0, 20, 0);
-				border.Tag = freeCells;
-			}
-
-			border.Child = textBlock;
-
-			if (gridRow > 0) {
+			if (gridRow > -1) {
 				Grid.SetRow(border, gridRow);
 				Grid.SetColumnSpan(border, columnSpan);
 				GridData.Children.Add(border);
