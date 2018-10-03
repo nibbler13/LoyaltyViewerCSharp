@@ -25,11 +25,11 @@
                        TextAlignment="Center" 
                        Margin="0,0,0,20" 
                        TextWrapping="Wrap"/>
-            <Grid Grid.Row="1" VerticalAlignment="Top" Margin="0,20,0,0">
-                <Grid.ColumnDefinitions>
+            <StackPanel Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0" Orientation="Horizontal">
+                <!--<Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
+                </Grid.ColumnDefinitions>-->
                 <Image Grid.Column="0" 
                        Source="Resources/touch.png" 
                        Height="{Binding ActualWidth, ElementName=imageMark5}" 
@@ -44,7 +44,7 @@
                            VerticalAlignment="Center" 
                            HorizontalAlignment="Left" 
                            Margin="0,0,20,0"/>
-            </Grid>
+            </StackPanel>
         </Grid>
         <Grid Grid.Column="1" x:Name="gridMarks">
             <Grid.RowDefinitions>
