@@ -85,8 +85,17 @@ namespace LoyaltyViewerWpf {
 
 			CreateNewYearTheme();
 			DataContext = this;
+
+			frame.Navigating += Frame_Navigating;
 		}
 
+		private void Frame_Navigating(object sender, NavigatingCancelEventArgs e) {
+			try {
+				frame.NavigationService.RemoveBackEntry();
+			} catch (Exception exc) {
+				SystemLogging.LogMessageToFile(exc.Message + Environment.NewLine + exc.StackTrace);
+			}
+		}
 
 		private void SetupLabelTitle(bool isPromoJustNow) {
 			TextBlockTime.Text = DateTime.Now.ToShortTimeString();
