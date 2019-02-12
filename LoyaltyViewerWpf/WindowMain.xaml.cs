@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -16,7 +17,6 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace LoyaltyViewerWpf {
@@ -26,7 +26,7 @@ namespace LoyaltyViewerWpf {
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public enum AvailablePages { About, ClinicRecommendations, DoctorsMarks, PromoJustNow };
+		public enum AvailablePages { About, ClinicRecommendations, DoctorsMarks, PromoJustNow, Advertisements };
 
 		public double FontSizeMain { get; set; }
 		public double FontSizeHeader { get; set; }
@@ -86,12 +86,12 @@ namespace LoyaltyViewerWpf {
 			CreateNewYearTheme();
 			DataContext = this;
 
-			frame.Navigating += Frame_Navigating;
+			FrameMain.Navigating += Frame_Navigating;
 		}
 
 		private void Frame_Navigating(object sender, NavigatingCancelEventArgs e) {
 			try {
-				frame.NavigationService.RemoveBackEntry();
+				FrameMain.NavigationService.RemoveBackEntry();
 			} catch (Exception exc) {
 				SystemLogging.LogMessageToFile(exc.Message + Environment.NewLine + exc.StackTrace);
 			}
@@ -156,6 +156,37 @@ namespace LoyaltyViewerWpf {
 			}
 		}
 
+		private void SetRootElementsVisibility(Visibility visibility) {
+			List<UIElement> elements = new List<UIElement> {
+				LabelTitle,
+				ImageLogo,
+				TextBlockAboutDeveloper,
+				GridBottom
+			};
+
+			foreach (UIElement element in elements)
+				element.Visibility = visibility;
+
+			int frameRow = 1;
+			int frameRowSpan = 1;
+
+			if (visibility == Visibility.Hidden) {
+				frameRow = 0;
+				frameRowSpan = 3;
+			}
+
+			Grid.SetRow(FrameMain, frameRow);
+			Grid.SetRowSpan(FrameMain, frameRowSpan);
+
+			//RowDefinitionTitle.Height = new GridLength(
+			//	visibility == Visibility.Collapsed ?
+			//	0 : 15, GridUnitType.Star);
+
+			//GridMain.RowDefinitions[0].Height = new GridLength(
+			//	visibility == Visibility.Collapsed ?
+			//	0 : 15, GridUnitType.Star);
+		}
+
 
 
 		private async Task PutTaskDelay() {
@@ -165,7 +196,7 @@ namespace LoyaltyViewerWpf {
 
 
 		private async void DispatcherTimer_Tick(object sender, EventArgs e) {
-			Page navigateTo;
+			Page pageNavigateTo;
 			ItemDataResult dataResult;
 
 			switch (previousPage) {
@@ -178,7 +209,7 @@ namespace LoyaltyViewerWpf {
 						return;
 					}
 
-					navigateTo = new PageMarks(previousPage, dataResult);
+					pageNavigateTo = new PageMarks(previousPage, dataResult);
 					TitleText = Properties.Resources.WindowMainTitleClinicRecommendations;
 
 					break;
@@ -192,7 +223,7 @@ namespace LoyaltyViewerWpf {
 						return;
 					}
 
-					navigateTo = new PageMarks(previousPage, dataResult);
+					pageNavigateTo = new PageMarks(previousPage, dataResult);
 					TitleText = Properties.Resources.WindowMainTitleDoctorsMarks;
 
 					break;
@@ -246,22 +277,66 @@ namespace LoyaltyViewerWpf {
 						return;
 					}
 
-					navigateTo = new PagePromoJustNow(promoJustNowToShow);
+					pageNavigateTo = new PagePromoJustNow(promoJustNowToShow);
 
 					break;
 				case AvailablePages.PromoJustNow:
+					previousPage = AvailablePages.Advertisements;
+					
+					string searchDir = Path.Combine(Directory.GetCurrentDirectory(), "Advertisements");
+
+					List<string> advertisementsInFolder = Directory.GetFiles(searchDir, "*.*", SearchOption.AllDirectories).
+						Where(f => new List<string> { ".jpg", ".png" }.IndexOf(Path.GetExtension(f)) >= 0).ToList();
+					List<string> advertisementsAvailable = new List<string>();
+
+					foreach (string item in advertisementsInFolder) {
+						string itemName = Path.GetFileName(item);
+
+						if (!itemName.StartsWith("[")) {
+							advertisementsAvailable.Add(item);
+							continue;
+						}
+
+						try {
+							string dateToStop = itemName.Substring(1, 10);
+							if (DateTime.TryParse(dateToStop, out DateTime dt)) {
+								if (DateTime.Now.Date >= dt)
+									continue;
+
+								advertisementsAvailable.Add(item);
+							}
+						} catch (Exception) { }
+					}
+
+					int adCount = advertisementsAvailable.Count;
+
+
+					if (!Properties.Settings.Default.ShowLastPageAdvertisements || adCount == 0) {
+						DispatcherTimer_Tick(sender, e);
+						return;
+					}
+
+					Random random = new Random();
+					string advertisement = advertisementsInFolder[random.Next(0, advertisementsInFolder.Count - 1)];
+
+					SetRootElementsVisibility(Visibility.Hidden);
+					pageNavigateTo = new PageAdvertisements(advertisement);
+
+					break;
+				case AvailablePages.Advertisements:
 					previousPage = AvailablePages.About;
 
-					navigateTo = new PageAbout();
+					pageNavigateTo = new PageAbout();
 					SetupLabelTitle(false);
 					TitleText = Properties.Resources.WindowMainTitleAbout;
+					SetRootElementsVisibility(Visibility.Visible);
 
 					break;
 				default:
 					return;
 			}
 
-			FrameNavigateTo(navigateTo);
+			FrameNavigateTo(pageNavigateTo);
 		}
 
 		private void NavigateToPromoJustNow(ref ItemPromoJustNow promoJustNowToShow, DateTime dateTimeUpdated, ref int gridRow) {
@@ -276,7 +351,7 @@ namespace LoyaltyViewerWpf {
 			page.FontSize = FontSize;
 			page.Foreground = Foreground;
 
-			frame.Navigate(page);
+			FrameMain.Navigate(page);
 		}
 
 

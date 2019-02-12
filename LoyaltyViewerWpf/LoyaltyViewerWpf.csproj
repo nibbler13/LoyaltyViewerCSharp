@@ -61,6 +61,9 @@
     <Compile Include="ControlsFactory.cs" />
     <Compile Include="FaderFrame.cs" />
     <Compile Include="ItemPromoJustNow.cs" />
+    <Compile Include="PageAdvertisements.xaml.cs">
+      <DependentUpon>PageAdvertisements.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PagePromoJustNow.xaml.cs">
       <DependentUpon>PagePromoJustNow.xaml</DependentUpon>
     </Compile>
@@ -68,6 +71,10 @@
       <DependentUpon>WindowPromoJustNow.xaml</DependentUpon>
     </Compile>
     <Page Include="PageAbout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PageAdvertisements.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

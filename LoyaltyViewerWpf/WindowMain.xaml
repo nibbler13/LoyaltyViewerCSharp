@@ -18,18 +18,16 @@
     <Window.Effect>
         <DropShadowEffect/>
     </Window.Effect>
-    <Grid>
+    <Grid x:Name="GridMain">
         <Grid.RowDefinitions>
             <RowDefinition Height="15*" x:Name="RowDefinitionTitle"/>
             <RowDefinition Height="85*"/>
             <RowDefinition Height="15"/>
         </Grid.RowDefinitions>
         
-        <Canvas Grid.RowSpan="2" x:Name="canvasSnowfall" Visibility="Hidden"/>
-
-        <TextBlock Grid.RowSpan="2" Text="{Binding AboutDeveloper}" 
-                   VerticalAlignment="Bottom" HorizontalAlignment="Left" 
-                   Margin="10" x:Name="TextBlockAboutDeveloper"/>
+        <Canvas Grid.RowSpan="2" 
+                x:Name="canvasSnowfall" 
+                Visibility="Hidden"/>
 
         <Label Content="{Binding TitleText}" 
                FontSize="{Binding FontSizeHeader}" 
@@ -46,23 +44,57 @@
             </Label.Resources>
         </Label>
 
-        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,20,0" x:Name="WrapPanelCurrentTime" Orientation="Horizontal" Visibility="Hidden">
-            <Image Source="Resources/TimeIcon.png" Margin="0,0,5,0" VerticalAlignment="Center" MaxHeight="40" Stretch="Fill"/>
-            <TextBlock Text="10:05" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0,0,0" Foreground="White" x:Name="TextBlockTime"/>
+        <StackPanel HorizontalAlignment="Right" 
+                    VerticalAlignment="Top" 
+                    Margin="0,20,20,0" 
+                    x:Name="WrapPanelCurrentTime" 
+                    Orientation="Horizontal"
+                    Visibility="Hidden">
+            
+            <Image Source="Resources/TimeIcon.png" 
+                   Margin="0,0,5,0" 
+                   VerticalAlignment="Center" 
+                   MaxHeight="40" 
+                   Stretch="Fill"/>
+            
+            <TextBlock Text="10:05"
+                       VerticalAlignment="Center" 
+                       FontWeight="Bold" 
+                       Margin="5,0,0,0" 
+                       Foreground="White" 
+                       x:Name="TextBlockTime"/>
         </StackPanel>
         
         <Image Source="Resources/ButterflyClear.png" 
-               HorizontalAlignment="Right" Margin="0,20,20,0" x:Name="ImageLogo"/>
+               HorizontalAlignment="Right" 
+               Margin="0,20,20,0" 
+               x:Name="ImageLogo"/>
 
-        <local:FaderFrame Grid.Row="1" x:Name="frame" NavigationUIVisibility="Hidden" Source="/LoyaltyViewerWpf;component/PageAbout.xaml"/>
+        <local:FaderFrame Grid.Row="1" 
+                          x:Name="FrameMain" 
+                          NavigationUIVisibility="Hidden" 
+                          Source="/LoyaltyViewerWpf;component/PageAbout.xaml"/>
 
-        <Grid Grid.Row="2">
+        <TextBlock Grid.RowSpan="2" 
+                   Text="{Binding AboutDeveloper}" 
+                   VerticalAlignment="Bottom" 
+                   HorizontalAlignment="Left" 
+                   Margin="10" 
+                   x:Name="TextBlockAboutDeveloper"/>
+
+        <Grid Grid.Row="2" x:Name="GridBottom">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Image Grid.Column="0" Height="15" Stretch="Fill" Source="Resources/BottomLineTemplate.png"/>
-            <Image Grid.Column="1" Source="Resources/BottomLineContinuesClear.png" Height="15"/>
+            
+            <Image Grid.Column="0" 
+                   Height="15" 
+                   Stretch="Fill" 
+                   Source="Resources/BottomLineTemplate.png"/>
+            <Image Grid.Column="1" 
+                   Source="Resources/BottomLineContinuesClear.png" 
+                   Height="15"/>
         </Grid>
     </Grid>
 </Window>
