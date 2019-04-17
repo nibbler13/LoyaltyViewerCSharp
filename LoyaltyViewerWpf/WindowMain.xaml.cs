@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -21,6 +22,8 @@ using System.Windows.Threading;
 
 namespace LoyaltyViewerWpf {
 	public partial class WindowMain : Window, INotifyPropertyChanged {
+		public static string AssemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\";
+
 		public event PropertyChangedEventHandler PropertyChanged;
 		private void NotifyPropertyChanged([CallerMemberName] String propertyName = "") {
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -282,42 +285,43 @@ namespace LoyaltyViewerWpf {
 					break;
 				case AvailablePages.PromoJustNow:
 					previousPage = AvailablePages.Advertisements;
-					
-					string searchDir = Path.Combine(Directory.GetCurrentDirectory(), "Advertisements");
 
-					List<string> advertisementsInFolder = Directory.GetFiles(searchDir, "*.*", SearchOption.AllDirectories).
-						Where(f => new List<string> { ".jpg", ".png" }.IndexOf(Path.GetExtension(f)) >= 0).ToList();
 					List<string> advertisementsAvailable = new List<string>();
 
-					foreach (string item in advertisementsInFolder) {
-						string itemName = Path.GetFileName(item);
+					try {
+						string searchDir = Path.Combine(AssemblyDirectory, "Advertisements");
 
-						if (!itemName.StartsWith("[")) {
-							advertisementsAvailable.Add(item);
-							continue;
-						}
+						List<string> advertisementsInFolder = Directory.GetFiles(searchDir, "*.*", SearchOption.AllDirectories).
+							Where(f => new List<string> { ".jpg", ".png" }.IndexOf(Path.GetExtension(f)) >= 0).ToList();
 
-						try {
-							string dateToStop = itemName.Substring(1, 10);
-							if (DateTime.TryParse(dateToStop, out DateTime dt)) {
-								if (DateTime.Now.Date >= dt)
-									continue;
+						foreach (string item in advertisementsInFolder) {
+							string itemName = Path.GetFileName(item);
 
+							if (!itemName.StartsWith("[")) {
 								advertisementsAvailable.Add(item);
+								continue;
 							}
-						} catch (Exception) { }
-					}
 
-					int adCount = advertisementsAvailable.Count;
+							try {
+								string dateToStop = itemName.Substring(1, 10);
+								if (DateTime.TryParse(dateToStop, out DateTime dt)) {
+									if (DateTime.Now.Date >= dt)
+										continue;
 
+									advertisementsAvailable.Add(item);
+								}
+							} catch (Exception) { }
+						}
+					} catch (Exception) { }
 
-					if (!Properties.Settings.Default.ShowLastPageAdvertisements || adCount == 0) {
+					if (!Properties.Settings.Default.ShowLastPageAdvertisements || 
+						advertisementsAvailable.Count == 0) {
 						DispatcherTimer_Tick(sender, e);
 						return;
 					}
 
 					Random random = new Random();
-					string advertisement = advertisementsInFolder[random.Next(0, advertisementsInFolder.Count - 1)];
+					string advertisement = advertisementsAvailable[random.Next(0, advertisementsAvailable.Count - 1)];
 
 					SetRootElementsVisibility(Visibility.Hidden);
 					pageNavigateTo = new PageAdvertisements(advertisement);
