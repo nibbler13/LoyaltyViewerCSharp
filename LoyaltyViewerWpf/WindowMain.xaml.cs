@@ -53,6 +53,8 @@ namespace LoyaltyViewerWpf {
 		public string AboutDeveloper { get; set; }
 		private DispatcherTimer dispatcherTimer;
 
+        private int currentAdvertisement = 0;
+
 
 		public WindowMain() {
 			InitializeComponent();
@@ -212,6 +214,7 @@ namespace LoyaltyViewerWpf {
 						return;
 					}
 
+                    SystemLogging.LogMessageToFile("Отображение страницы ClinicRecommendations");
 					pageNavigateTo = new PageMarks(previousPage, dataResult);
 					TitleText = Properties.Resources.WindowMainTitleClinicRecommendations;
 
@@ -226,7 +229,8 @@ namespace LoyaltyViewerWpf {
 						return;
 					}
 
-					pageNavigateTo = new PageMarks(previousPage, dataResult);
+                    SystemLogging.LogMessageToFile("Отображение страницы DoctorsMarks");
+                    pageNavigateTo = new PageMarks(previousPage, dataResult);
 					TitleText = Properties.Resources.WindowMainTitleDoctorsMarks;
 
 					break;
@@ -241,9 +245,10 @@ namespace LoyaltyViewerWpf {
 						return;
 					}
 
-					SetupLabelTitle(true);
+                    SystemLogging.LogMessageToFile("Отображение страницы PromoJustNow");
+                    SetupLabelTitle(true);
 
-					ItemPromoJustNow promoJustNowToShow = new ItemPromoJustNow {
+                    ItemPromoJustNow promoJustNowToShow = new ItemPromoJustNow {
 						DateTimeUpdated = promoJustNowLastUpdated.DateTimeUpdated
 					};
 					
@@ -280,7 +285,8 @@ namespace LoyaltyViewerWpf {
 						return;
 					}
 
-					pageNavigateTo = new PagePromoJustNow(promoJustNowToShow);
+                    SystemLogging.LogMessageToFile("Отображение страницы PromoJustNow");
+                    pageNavigateTo = new PagePromoJustNow(promoJustNowToShow);
 
 					break;
 				case AvailablePages.PromoJustNow:
@@ -320,8 +326,15 @@ namespace LoyaltyViewerWpf {
 						return;
 					}
 
-					Random random = new Random();
-					string advertisement = advertisementsAvailable[random.Next(0, advertisementsAvailable.Count - 1)];
+                    SystemLogging.LogMessageToFile("Отображение страницы Advertisements");
+                    SystemLogging.LogMessageToFile("Доступные изображения: " + Environment.NewLine +
+                        string.Join(Environment.NewLine, advertisementsAvailable));
+
+                    if (currentAdvertisement >= advertisementsAvailable.Count)
+                        currentAdvertisement = 0;
+
+                    string advertisement = advertisementsAvailable[currentAdvertisement++];
+                    SystemLogging.LogMessageToFile("Выбранное изображение: " + advertisement);
 
 					SetRootElementsVisibility(Visibility.Hidden);
 					pageNavigateTo = new PageAdvertisements(advertisement);
@@ -330,7 +343,8 @@ namespace LoyaltyViewerWpf {
 				case AvailablePages.Advertisements:
 					previousPage = AvailablePages.About;
 
-					pageNavigateTo = new PageAbout();
+                    SystemLogging.LogMessageToFile("Отображение страницы About");
+                    pageNavigateTo = new PageAbout();
 					SetupLabelTitle(false);
 					TitleText = Properties.Resources.WindowMainTitleAbout;
 					SetRootElementsVisibility(Visibility.Visible);
