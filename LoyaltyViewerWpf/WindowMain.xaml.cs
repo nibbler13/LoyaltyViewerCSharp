@@ -53,8 +53,6 @@ namespace LoyaltyViewerWpf {
 		public string AboutDeveloper { get; set; }
 		private DispatcherTimer dispatcherTimer;
 
-        private int currentAdvertisement = 0;
-
 
 		public WindowMain() {
 			InitializeComponent();
@@ -182,26 +180,37 @@ namespace LoyaltyViewerWpf {
 
 			Grid.SetRow(FrameMain, frameRow);
 			Grid.SetRowSpan(FrameMain, frameRowSpan);
-
-			//RowDefinitionTitle.Height = new GridLength(
-			//	visibility == Visibility.Collapsed ?
-			//	0 : 15, GridUnitType.Star);
-
-			//GridMain.RowDefinitions[0].Height = new GridLength(
-			//	visibility == Visibility.Collapsed ?
-			//	0 : 15, GridUnitType.Star);
 		}
 
 
 
 		private async Task PutTaskDelay() {
-			await Task.Delay(TimeSpan.FromSeconds(Properties.Settings.Default.PageChangingPeriodInSeconds));
+			int delay = 0;
+
+			switch (previousPage) {
+				case AvailablePages.About:
+					break;
+				case AvailablePages.ClinicRecommendations:
+					break;
+				case AvailablePages.DoctorsMarks:
+					break;
+				case AvailablePages.PromoJustNow:
+					delay = Properties.Settings.Default.PageChangingPeriodInSeconds;
+					break;
+				case AvailablePages.Advertisements:
+					delay = Properties.Settings.Default.AdvertisementsChangindPeriodInSecond;
+					break;
+				default:
+					break;
+			}
+
+			await Task.Delay(TimeSpan.FromSeconds(delay));
 		}
 
 
 
 		private async void DispatcherTimer_Tick(object sender, EventArgs e) {
-			Page pageNavigateTo;
+			Page pageNavigateTo = null;
 			ItemDataResult dataResult;
 
 			switch (previousPage) {
@@ -292,7 +301,10 @@ namespace LoyaltyViewerWpf {
 				case AvailablePages.PromoJustNow:
 					previousPage = AvailablePages.Advertisements;
 
-					List<string> advertisementsAvailable = new List<string>();
+					if (!Properties.Settings.Default.ShowLastPageAdvertisements) {
+						DispatcherTimer_Tick(sender, e);
+						return;
+					}
 
 					try {
 						string searchDir = Path.Combine(AssemblyDirectory, "Advertisements");
@@ -300,44 +312,41 @@ namespace LoyaltyViewerWpf {
 						List<string> advertisementsInFolder = Directory.GetFiles(searchDir, "*.*", SearchOption.AllDirectories).
 							Where(f => new List<string> { ".jpg", ".png" }.IndexOf(Path.GetExtension(f)) >= 0).ToList();
 
+						if (advertisementsInFolder.Count == 0) {
+							DispatcherTimer_Tick(sender, e);
+							return;
+						}
+
+						dispatcherTimer.Stop();
+
 						foreach (string item in advertisementsInFolder) {
 							string itemName = Path.GetFileName(item);
 
-							if (!itemName.StartsWith("[")) {
-								advertisementsAvailable.Add(item);
-								continue;
-							}
+							if (itemName.StartsWith("["))
+								try {
+									string dateToStop = itemName.Substring(1, 10);
+									if (DateTime.TryParse(dateToStop, out DateTime dt))
+										if (DateTime.Now.Date >= dt)
+											continue;
+								} catch (Exception) { }
 
-							try {
-								string dateToStop = itemName.Substring(1, 10);
-								if (DateTime.TryParse(dateToStop, out DateTime dt)) {
-									if (DateTime.Now.Date >= dt)
-										continue;
 
-									advertisementsAvailable.Add(item);
-								}
-							} catch (Exception) { }
+							SystemLogging.LogMessageToFile("Отображение страницы Advertisements");
+							SystemLogging.LogMessageToFile("Изображениe: " + itemName);
+
+							SetRootElementsVisibility(Visibility.Hidden);
+							FrameNavigateTo(new PageAdvertisements(item));
+
+							await PutTaskDelay();
 						}
-					} catch (Exception) { }
 
-					if (!Properties.Settings.Default.ShowLastPageAdvertisements || 
-						advertisementsAvailable.Count == 0) {
+						dispatcherTimer.Start();
 						DispatcherTimer_Tick(sender, e);
+
 						return;
+					} catch (Exception exc) {
+						SystemLogging.LogMessageToFile(exc.Message + Environment.NewLine + exc.StackTrace);
 					}
-
-                    SystemLogging.LogMessageToFile("Отображение страницы Advertisements");
-                    SystemLogging.LogMessageToFile("Доступные изображения: " + Environment.NewLine +
-                        string.Join(Environment.NewLine, advertisementsAvailable));
-
-                    if (currentAdvertisement >= advertisementsAvailable.Count)
-                        currentAdvertisement = 0;
-
-                    string advertisement = advertisementsAvailable[currentAdvertisement++];
-                    SystemLogging.LogMessageToFile("Выбранное изображение: " + advertisement);
-
-					SetRootElementsVisibility(Visibility.Hidden);
-					pageNavigateTo = new PageAdvertisements(advertisement);
 
 					break;
 				case AvailablePages.Advertisements:
@@ -354,7 +363,8 @@ namespace LoyaltyViewerWpf {
 					return;
 			}
 
-			FrameNavigateTo(pageNavigateTo);
+			if (pageNavigateTo != null)
+				FrameNavigateTo(pageNavigateTo);
 		}
 
 		private void NavigateToPromoJustNow(ref ItemPromoJustNow promoJustNowToShow, DateTime dateTimeUpdated, ref int gridRow) {
