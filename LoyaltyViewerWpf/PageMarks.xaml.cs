@@ -64,15 +64,15 @@ namespace LoyaltyViewerWpf {
 			InitializeComponent();
 
 			if (currentState == WindowMain.AvailablePages.DoctorsMarks) {
-				_percentMark5 = dataResult.PercentLove;
-				_percentMark4 = dataResult.PercentHappy;
-				_percentMark3 = dataResult.PercentNeutral;
-				_percentMark2 = dataResult.PercentSad;
-				_percentMark1 = dataResult.PercentAngry;
+				_percentMark5 = dataResult.PercentLove / 100.0d;
+				_percentMark4 = dataResult.PercentHappy / 100.0d;
+				_percentMark3 = dataResult.PercentNeutral / 100.0d;
+				_percentMark2 = dataResult.PercentSad / 100.0d;
+				_percentMark1 = dataResult.PercentAngry / 100.0d;
 			} else if (currentState == WindowMain.AvailablePages.ClinicRecommendations) {
-				_percentMark4 = dataResult.PercentLike;
-				_percentMark3 = dataResult.PercentDontKnow;
-				_percentMark2 = dataResult.PercentDislike;
+				_percentMark4 = dataResult.PercentLike / 100.0d;
+				_percentMark3 = dataResult.PercentDontKnow / 100.0d;
+				_percentMark2 = dataResult.PercentDislike / 100.0d;
 				imageMark4.Source = ControlsFactory.GetResourceImage("icon_like");
 				imageMark3.Source = ControlsFactory.GetResourceImage("icon_dont_know");
 				imageMark2.Source = ControlsFactory.GetResourceImage("icon_dislike");

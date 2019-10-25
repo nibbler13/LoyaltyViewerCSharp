@@ -193,9 +193,9 @@ namespace LoyaltyViewerWpf {
 			}
 
 			DataTable dataTable = fBClient.GetDataTable(query, new Dictionary<string, string>(), ref errorsCountMisDb);
-			int totalVotes = 0;
+			double totalVotes = 0;
 
-			int[] votes = new int[votesCount];
+			double[] votes = new double[votesCount];
 			foreach (DataRow row in dataTable.Rows) {
 				try {
 					int vote;
@@ -213,22 +213,22 @@ namespace LoyaltyViewerWpf {
 			if (totalVotes > 0)
 				if (type == Types.QualityToday ||
 					type == Types.QualityYesterday) {
-					dataResult.PercentAngry = ((double)votes[0] / (double)totalVotes);
-					dataResult.PercentSad = ((double)votes[1] / (double)totalVotes);
-					dataResult.PercentNeutral = ((double)votes[2] / (double)totalVotes);
-					dataResult.PercentHappy = ((double)votes[3] / (double)totalVotes);
-					dataResult.PercentLove = 1 - dataResult.PercentAngry - dataResult.PercentSad -
+					dataResult.PercentAngry = (int)((double)votes[0] / totalVotes * 100.0d);
+					dataResult.PercentSad = (int)((double)votes[1] / totalVotes * 100.0d);
+					dataResult.PercentNeutral = (int)((double)votes[2] / totalVotes * 100.0d);
+					dataResult.PercentHappy = (int)((double)votes[3] / totalVotes * 100.0d);
+					dataResult.PercentLove = 100 - dataResult.PercentAngry - dataResult.PercentSad -
 						dataResult.PercentNeutral - dataResult.PercentHappy;
 				} else if (
 					type == Types.RecommendationToday ||
 					type == Types.RecommendationYesterday) {
-					dataResult.PercentDislike = ((double)(votes[0] + votes[1] + votes[2] + votes[3] + votes[4] + votes[5] + votes[6]) / 
-						(double)totalVotes);
-					dataResult.PercentDontKnow = ((double)(votes[7] + votes[8]) / totalVotes);
-					dataResult.PercentLike = 1 - dataResult.PercentDislike - dataResult.PercentDontKnow;
+					dataResult.PercentDislike = (int)(((votes[0] + votes[1] + votes[2] + votes[3] + votes[4] + votes[5] + votes[6]) / 
+						totalVotes) * 100.0d);
+					dataResult.PercentDontKnow = (int)(((votes[7] + votes[8]) / totalVotes) * 100.0d);
+					dataResult.PercentLike = 100 - dataResult.PercentDislike - dataResult.PercentDontKnow;
 				}
 			
-			dataResult.Total = totalVotes;
+			dataResult.Total = (int)totalVotes;
 			dataResult.Description = title;
 
 			switch (type) {
